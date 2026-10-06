@@ -10,7 +10,7 @@
 <style>
 :root{color-scheme:light;--quick-control-height:44px;--free-input-height:120px;--answer-start-gap:24px;--ink:#202733;--muted:#697586;--blue:#315ee8;--line:#dce2eb;--paper:#fff;--bg:#f4f6fa;--soft:#eef2ff;--selection:#dce5ff}
 *{box-sizing:border-box}body{min-height:100svh;margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{width:100%;height:var(--quick-viewport-height,100svh);margin:auto;padding:16px;display:flex;flex-direction:column;background:transparent}
+main{width:100%;height:100svh;margin:auto;padding:16px;display:flex;flex-direction:column;background:transparent}
 .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:15px;margin-bottom:14px}.brand{font-weight:650;color:var(--ink);letter-spacing:.01em}
 .progress{height:5px;flex:none;background:#e3e7ee;border-radius:9px;overflow:hidden;margin-bottom:12px}.progress>div{height:100%;background:var(--blue);transition:width .2s}
 .card{flex:1;min-height:0;background:var(--paper);background-clip:padding-box;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 12px 36px #23304a0b;display:flex;flex-direction:column;overflow:hidden}
@@ -26,8 +26,6 @@ main{width:100%;height:var(--quick-viewport-height,100svh);margin:auto;padding:1
 .card.free-input-scroll-layout{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
 .card.free-input-scroll-layout>.text-scroll{position:static;flex:0 0 auto;min-height:min-content;max-height:none;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto;-webkit-overflow-scrolling:auto}
 .card.free-input-scroll-layout>.step-title,.card.free-input-scroll-layout>.hint,.card.free-input-scroll-layout>.instruction,.card.free-input-scroll-layout>.free-input,.card.free-input-scroll-layout>.actions{flex-shrink:0}
-html.quick-free-input-keyboard-shifted{overflow:clip}
-html.quick-free-input-keyboard-shifted #app{transform:translateY(-80px)}
 </style>
 </head>
 <body>
@@ -52,32 +50,7 @@ function createQuickRuntime(config){
 let runtimeConfig=defaultRuntimeConfig,activeMainFlow=mainFlow,runtime=createQuickRuntime(runtimeConfig),flow=[...runtimeConfig.mainFlow,...runtimeConfig.branchNodes];
 let feedbackState=null,stepIndex=0,selectionByStep=flow.map(()=>new Set()),selectionGroupsByStep=flow.map(()=>[]),choiceByStep=flow.map(()=>null),inputByStep=flow.map(()=>""),submittedByStep=flow.map(()=>null),tokenList=[],drag=null;
 const app=document.querySelector("#app"),card=document.querySelector("#card"),stepCount=document.querySelector("#stepCount"),progressFill=document.querySelector("#progressFill");
-let quickViewportBaselineHeight=window.visualViewport?.height??window.innerHeight,quickFreeInputViewportSession=false;
-let quickFreeInputKeyboardShiftTimer=0,quickFreeInputKeyboardShifted=false;
-function scheduleFreeInputKeyboardShift(){const field=document.activeElement;if(!field||!field.matches||!field.matches("textarea.free-input")||!card.contains(field)||quickFreeInputKeyboardShifted)return;clearTimeout(quickFreeInputKeyboardShiftTimer);quickFreeInputKeyboardShiftTimer=setTimeout(()=>{const active=document.activeElement;if(!active||!active.matches||!active.matches("textarea.free-input")||!card.contains(active)||quickFreeInputKeyboardShifted)return;document.documentElement.classList.add("quick-free-input-keyboard-shifted");quickFreeInputKeyboardShifted=true},180)}
-function resetFreeInputKeyboardShift(){clearTimeout(quickFreeInputKeyboardShiftTimer);if(quickFreeInputKeyboardShifted){document.documentElement.classList.remove("quick-free-input-keyboard-shifted");quickFreeInputKeyboardShifted=false}}
 
-function syncQuickViewportHeight(){
- const viewport=window.visualViewport;
- const visibleHeight=viewport?.height??window.innerHeight;
- const field=document.activeElement;
- const freeInputFocused=!!(field&&field.matches&&field.matches("textarea.free-input")&&card.contains(field));
- const cssHeight=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--quick-viewport-height"))||quickViewportBaselineHeight||visibleHeight;
- if(freeInputFocused&&!quickFreeInputViewportSession){quickFreeInputViewportSession=true;quickViewportBaselineHeight=cssHeight}
- const keyboardReduced=!!viewport&&visibleHeight<quickViewportBaselineHeight-80;
- if(freeInputFocused&&keyboardReduced)scheduleFreeInputKeyboardShift();
- if(!keyboardReduced)resetFreeInputKeyboardShift();
- if(quickFreeInputViewportSession&&keyboardReduced)return;
- document.documentElement.style.setProperty("--quick-viewport-height",`${visibleHeight}px`);
- quickViewportBaselineHeight=visibleHeight;
- if(!freeInputFocused)quickFreeInputViewportSession=false;
-}
-const scheduleQuickViewportSync=()=>requestAnimationFrame(syncQuickViewportHeight);
-if(window.visualViewport){window.visualViewport.addEventListener("resize",scheduleQuickViewportSync);window.visualViewport.addEventListener("scroll",scheduleQuickViewportSync)}
-window.addEventListener("resize",scheduleQuickViewportSync);
-document.addEventListener("focusin",scheduleQuickViewportSync,true);
-document.addEventListener("focusout",scheduleQuickViewportSync,true);
-syncQuickViewportHeight();
 
 
 
@@ -96,7 +69,7 @@ function draw(){const step=current(),progress=itemProgress(step);let selectableT
  
  if(step.answerMode==="free_input"){if(step.instruction){const p=document.createElement("p");p.className="instruction";QuickMathDisplay.render(p,step.instruction);card.append(p)}const field=document.createElement("textarea");field.id="freeInput";field.className="free-input";field.rows=1;field.autocomplete="off";field.setAttribute("enterkeyhint","send");field.addEventListener("keydown",handleFreeInputKeydown);field.setAttribute("aria-label","简短自由输入答案");field.placeholder="输入简短答案";field.value=inputByStep[stepIndex]||"";field.addEventListener("input",()=>{inputByStep[stepIndex]=field.value;resizeFreeInput(field);syncSubmit()});card.append(field);resizeFreeInput(field)}
  if(step.options){const p=document.createElement("p");p.className="instruction";renderQuickMathText(p,step.options.prompt);card.append(p);const opts=document.createElement("div");opts.className="options";step.options.items.forEach((label,i)=>{const b=document.createElement("button");b.type="button";b.className="option";b.setAttribute("aria-pressed",String(choiceByStep[stepIndex]===i));const mark=document.createElement("span");mark.className="letter";mark.textContent=String.fromCharCode(65+i);const name=document.createElement("span");renderQuickMathText(name,label);b.append(mark,name);b.onclick=()=>{choiceByStep[stepIndex]=i;draw()};opts.append(b)});card.append(opts)}
- const actions=document.createElement("div");actions.className="actions";const submit=document.createElement("button");submit.className="primary";submit.id="submit";submit.textContent="提交";submit.disabled=!canSubmit(stepIndex);submit.onclick=()=>submitCurrent();actions.append(submit);card.append(actions);paint();scheduleQuickViewportSync()}
+ const actions=document.createElement("div");actions.className="actions";const submit=document.createElement("button");submit.className="primary";submit.id="submit";submit.textContent="提交";submit.disabled=!canSubmit(stepIndex);submit.onclick=()=>submitCurrent();actions.append(submit);card.append(actions);paint();}
 function resizeFreeInput(field){field.style.height="var(--free-input-height)";field.classList.remove("is-scrollable");const maxHeight=parseFloat(getComputedStyle(field).maxHeight),borderSize=field.offsetHeight-field.clientHeight,contentHeight=field.scrollHeight+borderSize;if(contentHeight>maxHeight){field.style.height=`${maxHeight}px`;field.classList.add("is-scrollable")}else{field.style.height=`${Math.max(parseFloat(getComputedStyle(field).height),contentHeight)}px`}}
 function selectedTokensForStep(index){return [...selectionByStep[index]].sort((a,b)=>a-b).map(i=>({token:tokenList[i].text,start:tokenList[i].start,end:tokenList[i].end}))}
 function advanceSubmitted(step,record){submittedByStep[stepIndex]=record;const submittedIndex=stepIndex,next=runtime.submit(record);if(step.feedback){feedbackState={step,record,index:submittedIndex};drawFeedback();return}if(next){stepIndex=flow.findIndex(n=>n.nodeId===next.nodeId);draw()}else drawComplete()}
