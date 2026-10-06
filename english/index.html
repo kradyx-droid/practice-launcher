@@ -21,12 +21,10 @@ main{width:100%;height:var(--quick-viewport-height,100svh);margin:auto;padding:1
 .feedback-scroll{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}.feedback-block{padding:0 0 18px}.feedback-label{font-size:16px;color:var(--muted);font-weight:600;margin:0 0 5px}.feedback-value{font-size:20px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.actions{display:flex;justify-content:flex-end;margin-top:auto;padding-top:24px;gap:12px;flex-wrap:wrap;flex:none}.primary,.secondary{min-height:var(--quick-control-height);border-radius:11px;padding:11px 22px;font:600 17px system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer}.primary{border:0;background:var(--blue);color:white;min-width:140px}.primary:disabled{background:#b9c1d0;cursor:not-allowed}.secondary{border:1px solid var(--line);background:white;color:var(--ink);min-width:112px}.top .secondary{min-width:0;min-height:32px;padding:4px 10px;font-size:13px}.free-input{display:block;width:100%;height:var(--free-input-height);min-height:var(--free-input-height);max-height:calc(8em + 19px);flex:none;resize:none;overflow-y:hidden;margin-top:var(--answer-start-gap);border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:12px 12px;font:18px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif;outline:none}.free-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #315ee81a}.free-input::placeholder{color:#8a94a3}.free-input.is-scrollable{overflow-y:auto}
 @media(max-width:520px){body{font-size:17px}main{padding:10px}.card{border-radius:16px}.text-block{font-size:19px;line-height:1.95}.quick-fraction{margin-inline:.07em}.quick-fraction__numerator,.quick-fraction__denominator{font-size:.72em}.option{padding:12px 14px}}
 
-/* Free Input keyboard mode: preserve a visible text region and scroll the card when space is short. */
-.card.keyboard-input-mode{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
-.card.keyboard-input-mode>.text-scroll{position:sticky;top:0;z-index:2;flex:0 0 auto;min-height:2.5em;max-height:38vh;overflow-y:auto;overscroll-behavior:contain;background:var(--paper);scrollbar-gutter:stable;-webkit-overflow-scrolling:touch}
-@supports (height:1dvh){.card.keyboard-input-mode>.text-scroll{max-height:min(220px,38dvh)}}
-.card.keyboard-input-mode>.step-title,.card.keyboard-input-mode>.hint,.card.keyboard-input-mode>.instruction,.card.keyboard-input-mode>.free-input,.card.keyboard-input-mode>.actions{flex-shrink:0}
-.card.keyboard-input-mode>.actions{margin-top:0}
+/* Free Input uses the same natural-height card scroll layout with or without the soft keyboard. */
+.card.free-input-scroll-layout{overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+.card.free-input-scroll-layout>.text-scroll{position:static;flex:0 0 auto;min-height:min-content;max-height:none;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto;-webkit-overflow-scrolling:auto}
+.card.free-input-scroll-layout>.step-title,.card.free-input-scroll-layout>.hint,.card.free-input-scroll-layout>.instruction,.card.free-input-scroll-layout>.free-input,.card.free-input-scroll-layout>.actions{flex-shrink:0}
 </style>
 </head>
 <body>
@@ -51,26 +49,27 @@ function createQuickRuntime(config){
 let runtimeConfig=defaultRuntimeConfig,activeMainFlow=mainFlow,runtime=createQuickRuntime(runtimeConfig),flow=[...runtimeConfig.mainFlow,...runtimeConfig.branchNodes];
 let feedbackState=null,stepIndex=0,selectionByStep=flow.map(()=>new Set()),selectionGroupsByStep=flow.map(()=>[]),choiceByStep=flow.map(()=>null),inputByStep=flow.map(()=>""),submittedByStep=flow.map(()=>null),tokenList=[],drag=null;
 const app=document.querySelector("#app"),card=document.querySelector("#card"),stepCount=document.querySelector("#stepCount"),progressFill=document.querySelector("#progressFill");
-let quickViewportBaselineHeight=window.innerHeight,freeInputKeyboardSession=false;
-function syncQuickViewportLayout(){
+let quickViewportBaselineHeight=window.visualViewport?.height??window.innerHeight,quickFreeInputViewportSession=false;
+function syncQuickViewportHeight(){
  const viewport=window.visualViewport;
  const visibleHeight=viewport?.height??window.innerHeight;
- document.documentElement.style.setProperty("--quick-viewport-height",`${visibleHeight}px`);
  const field=document.activeElement;
  const freeInputFocused=!!(field&&field.matches&&field.matches("textarea.free-input")&&card.contains(field));
- const hasFreeInput=!!card.querySelector("textarea.free-input");
- if(freeInputFocused)freeInputKeyboardSession=true;
- if(!freeInputFocused&&!freeInputKeyboardSession)quickViewportBaselineHeight=Math.max(window.innerHeight,visibleHeight);
- const keyboardReduced=!!viewport&&visibleHeight<Math.max(quickViewportBaselineHeight,window.innerHeight)-80;
- card.classList.toggle("keyboard-input-mode",hasFreeInput&&freeInputKeyboardSession&&keyboardReduced);
- if(!keyboardReduced||!hasFreeInput)freeInputKeyboardSession=false;
+ const cssHeight=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--quick-viewport-height"))||quickViewportBaselineHeight||visibleHeight;
+ if(freeInputFocused&&!quickFreeInputViewportSession){quickFreeInputViewportSession=true;quickViewportBaselineHeight=cssHeight}
+ const keyboardReduced=!!viewport&&visibleHeight<quickViewportBaselineHeight-80;
+ if(quickFreeInputViewportSession&&keyboardReduced)return;
+ document.documentElement.style.setProperty("--quick-viewport-height",`${visibleHeight}px`);
+ quickViewportBaselineHeight=visibleHeight;
+ if(!freeInputFocused)quickFreeInputViewportSession=false;
 }
-const scheduleQuickViewportSync=()=>requestAnimationFrame(syncQuickViewportLayout);
+const scheduleQuickViewportSync=()=>requestAnimationFrame(syncQuickViewportHeight);
 if(window.visualViewport){window.visualViewport.addEventListener("resize",scheduleQuickViewportSync);window.visualViewport.addEventListener("scroll",scheduleQuickViewportSync)}
 window.addEventListener("resize",scheduleQuickViewportSync);
 document.addEventListener("focusin",scheduleQuickViewportSync,true);
 document.addEventListener("focusout",scheduleQuickViewportSync,true);
-syncQuickViewportLayout();
+syncQuickViewportHeight();
+
 
 
 function tokenize(source){let parts;if(typeof Intl.Segmenter==="function"){parts=Array.from(new Intl.Segmenter(undefined,{granularity:"word"}).segment(source),x=>({text:x.segment,start:x.index}))}else{const re=/\s+|[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]+|[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*|[^\s]/gu;parts=Array.from(source.matchAll(re),m=>({text:m[0],start:m.index}))}return parts.filter(x=>!/^[\s]+$/u.test(x.text)).map(x=>({text:x.text,start:x.start,end:x.start+x.text.length}))}
@@ -81,20 +80,20 @@ function itemProgress(step,mainFlow=activeMainFlow){const anchor=step.kind==="br
 function canSubmitStep(step,selected,choice,freeText=""){return (!step.textSelection||selected.size>0)&&(!step.options||choice!==null)&&(step.answerMode!=="free_input"||String(freeText).trim().length>0)}
 function canSubmit(i){return canSubmitStep(flow[i],selectionByStep[i],choiceByStep[i],inputByStep[i])}
 function syncSubmit(){const button=card.querySelector("#submit");if(button)button.disabled=!canSubmit(stepIndex)}
-function draw(){const step=current(),progress=itemProgress(step);let selectableTextElement=null;if(feedbackState){drawFeedback();return}stepCount.textContent=`${progress.index+1} / ${progress.total}`;progressFill.style.width=`${(progress.index+1)/progress.total*100}%`;card.classList.remove("done");card.replaceChildren();
+function draw(){const step=current(),progress=itemProgress(step);let selectableTextElement=null;if(feedbackState){drawFeedback();return}stepCount.textContent=`${progress.index+1} / ${progress.total}`;progressFill.style.width=`${(progress.index+1)/progress.total*100}%`;card.classList.remove("done");card.classList.toggle("free-input-scroll-layout",step.answerMode==="free_input");card.replaceChildren();
  
  const scroller=document.createElement("div");scroller.className="text-scroll";const textElement=document.createElement("p");textElement.className="text-block";textElement.setAttribute("aria-label","可选择的示例文本");tokenList=tokenize(step.text);if(step.textSelection===true){let cursor=0;tokenList.forEach((token,i)=>{if(token.start>cursor)textElement.append(document.createTextNode(step.text.slice(cursor,token.start)));const span=document.createElement("span");span.className="token";span.dataset.tokenIndex=String(i);span.textContent=token.text;textElement.append(span);cursor=token.end});if(cursor<step.text.length)textElement.append(document.createTextNode(step.text.slice(cursor)))}else{renderQuickMathText(textElement,step.text)}scroller.append(textElement);card.append(scroller);if(step.textSelection===true&&typeof step.text==="string"&&step.text.length>0)selectableTextElement=textElement;
  if(step.textSelection===true&&selectableTextElement){selectableTextElement.addEventListener("pointerdown",onDown);selectableTextElement.addEventListener("pointermove",onMove);selectableTextElement.addEventListener("pointerup",onUp);selectableTextElement.addEventListener("pointercancel",onCancel);selectableTextElement.addEventListener("click",onClick)}
  
  if(step.answerMode==="free_input"){if(step.instruction){const p=document.createElement("p");p.className="instruction";QuickMathDisplay.render(p,step.instruction);card.append(p)}const field=document.createElement("textarea");field.id="freeInput";field.className="free-input";field.rows=1;field.autocomplete="off";field.setAttribute("aria-label","简短自由输入答案");field.placeholder="输入简短答案";field.value=inputByStep[stepIndex]||"";field.addEventListener("input",()=>{inputByStep[stepIndex]=field.value;resizeFreeInput(field);syncSubmit()});card.append(field);resizeFreeInput(field)}
  if(step.options){const p=document.createElement("p");p.className="instruction";renderQuickMathText(p,step.options.prompt);card.append(p);const opts=document.createElement("div");opts.className="options";step.options.items.forEach((label,i)=>{const b=document.createElement("button");b.type="button";b.className="option";b.setAttribute("aria-pressed",String(choiceByStep[stepIndex]===i));const mark=document.createElement("span");mark.className="letter";mark.textContent=String.fromCharCode(65+i);const name=document.createElement("span");renderQuickMathText(name,label);b.append(mark,name);b.onclick=()=>{choiceByStep[stepIndex]=i;draw()};opts.append(b)});card.append(opts)}
- const actions=document.createElement("div");actions.className="actions";const submit=document.createElement("button");submit.className="primary";submit.id="submit";submit.textContent="提交";submit.disabled=!canSubmit(stepIndex);submit.onclick=()=>submitCurrent();actions.append(submit);card.append(actions);paint();syncQuickViewportLayout()}
+ const actions=document.createElement("div");actions.className="actions";const submit=document.createElement("button");submit.className="primary";submit.id="submit";submit.textContent="提交";submit.disabled=!canSubmit(stepIndex);submit.onclick=()=>submitCurrent();actions.append(submit);card.append(actions);paint();scheduleQuickViewportSync()}
 function resizeFreeInput(field){field.style.height="var(--free-input-height)";field.classList.remove("is-scrollable");const maxHeight=parseFloat(getComputedStyle(field).maxHeight),borderSize=field.offsetHeight-field.clientHeight,contentHeight=field.scrollHeight+borderSize;if(contentHeight>maxHeight){field.style.height=`${maxHeight}px`;field.classList.add("is-scrollable")}else{field.style.height=`${Math.max(parseFloat(getComputedStyle(field).height),contentHeight)}px`}}
 function selectedTokensForStep(index){return [...selectionByStep[index]].sort((a,b)=>a-b).map(i=>({token:tokenList[i].text,start:tokenList[i].start,end:tokenList[i].end}))}
 function advanceSubmitted(step,record){submittedByStep[stepIndex]=record;const submittedIndex=stepIndex,next=runtime.submit(record);if(step.feedback){feedbackState={step,record,index:submittedIndex};drawFeedback();return}if(next){stepIndex=flow.findIndex(n=>n.nodeId===next.nodeId);draw()}else drawComplete()}
 function drawFeedback(){const {step,record,index}=feedbackState;const progress=itemProgress(flow[index]);stepCount.textContent=`${progress.index+1} / ${progress.total}`;progressFill.style.width=`${(progress.index+1)/progress.total*100}%`;card.classList.remove("done");card.replaceChildren();const body=document.createElement("div");body.className="feedback-scroll";for(const [label,value] of [["你的回答",record.rawInputText],["参考答案",step.referenceAnswer],["解析",step.explanation]]){const section=document.createElement("section");section.className="feedback-block";const heading=document.createElement("h2");heading.className="feedback-label";heading.textContent=label;const content=document.createElement("p");content.className="feedback-value";QuickMathDisplay.render(content,value);section.append(heading,content);body.append(section)}card.append(body);const actions=document.createElement("div");actions.className="actions";const next=document.createElement("button");next.className="primary";next.textContent=progress.index+1===progress.total?"完成":"下一题";next.addEventListener("click",()=>{feedbackState=null;if(runtime.state.status==="completed"){drawComplete();return}stepIndex=flow.findIndex(n=>n.nodeId===runtime.state.currentNodeId);draw()});actions.append(next);card.append(actions)}
 function submitCurrent(){if(!canSubmit(stepIndex))return;const step=current(),selected=selectedTokensForStep(stepIndex),chosen=choiceByStep[stepIndex];if(step.answerMode==="free_input"){const field=card.querySelector("#freeInput"),rawInputText=field?field.value:inputByStep[stepIndex],submittedAt=new Date().toISOString();if(field)field.blur();inputByStep[stepIndex]="";advanceSubmitted(step,{item:step.item,step:step.step,sourceText:step.text,textSelection:selected,optionChoice:null,answerMode:"free_input",rawInputText,submittedAt,probeRule:null,judgement:null,recordSpec:step.recordSpec});return}const record={item:step.item,step:step.step,sourceText:step.text,textSelection:selected,optionChoice:chosen===null?null:step.options?.items[chosen]??null,recordSpec:step.recordSpec};advanceSubmitted(step,record)}
-function drawComplete(){card.classList.add("done");card.replaceChildren();const title=document.createElement("h1");title.className="step-title";title.textContent=runtime.state.status==="stopped"?"本次已停止":"已完成";const button=document.createElement("button");button.className="primary";button.textContent="复制结果";button.addEventListener("click",copyResults);card.append(title,button)}
+function drawComplete(){card.classList.add("done");card.classList.remove("free-input-scroll-layout");card.replaceChildren();const title=document.createElement("h1");title.className="step-title";title.textContent=runtime.state.status==="stopped"?"本次已停止":"已完成";const button=document.createElement("button");button.className="primary";button.textContent="复制结果";button.addEventListener("click",copyResults);card.append(title,button)}
 const UNIVERSAL_QUICK_RESULT_V1_HEADER=[
  "FORMAT UNIVERSAL_QUICK_RESULT_V1",
  "Universal Quick｜结果导出协议 v1",
