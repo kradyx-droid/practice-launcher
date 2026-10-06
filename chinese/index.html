@@ -11,7 +11,7 @@
 
 :root{color-scheme:light;--quick-control-height:44px;--free-input-height:120px;--answer-start-gap:24px;--ink:#202733;--muted:#697586;--blue:#315ee8;--line:#dce2eb;--paper:#fff;--bg:#f4f6fa;--soft:#eef2ff;--selection:#dce5ff}
 *{box-sizing:border-box}body{min-height:100svh;margin:0;background:var(--bg);color:var(--ink);font:18px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{width:100%;height:var(--quick-viewport-height,100svh);margin:auto;padding:16px;display:flex;flex-direction:column;background:transparent}
+main{width:100%;height:100svh;margin:auto;padding:16px;display:flex;flex-direction:column;background:transparent}
 .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:15px;margin-bottom:14px}.brand{font-weight:650;color:var(--ink);letter-spacing:.01em}
 .progress{height:5px;flex:none;background:#e3e7ee;border-radius:9px;overflow:hidden;margin-bottom:12px}.progress>div{height:100%;background:var(--blue);transition:width .2s}
 .card{flex:1;min-height:0;background:var(--paper);background-clip:padding-box;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 12px 36px #23304a0b;display:flex;flex-direction:column;overflow:hidden}
@@ -53,26 +53,7 @@ function createQuickRuntime(config){
 let runtime=createQuickRuntime(defaultRuntimeConfig),flow=[...mainFlow];
 let feedbackState=null,stepIndex=0,selectionByStep=flow.map(()=>new Set()),selectionGroupsByStep=flow.map(()=>[]),choiceByStep=flow.map(()=>null),inputByStep=flow.map(()=>""),submittedByStep=flow.map(()=>null),tokenList=[],drag=null;
 const card=document.querySelector("#card"),stepCount=document.querySelector("#stepCount"),progressFill=document.querySelector("#progressFill");
-let quickViewportBaselineHeight=window.visualViewport?.height??window.innerHeight,quickFreeInputViewportSession=false;
-function syncQuickViewportHeight(){
- const viewport=window.visualViewport;
- const visibleHeight=viewport?.height??window.innerHeight;
- const field=document.activeElement;
- const freeInputFocused=!!(field&&field.matches&&field.matches("textarea.free-input")&&card.contains(field));
- const cssHeight=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--quick-viewport-height"))||quickViewportBaselineHeight||visibleHeight;
- if(freeInputFocused&&!quickFreeInputViewportSession){quickFreeInputViewportSession=true;quickViewportBaselineHeight=cssHeight}
- const keyboardReduced=!!viewport&&visibleHeight<quickViewportBaselineHeight-80;
- if(quickFreeInputViewportSession&&keyboardReduced)return;
- document.documentElement.style.setProperty("--quick-viewport-height",`${visibleHeight}px`);
- quickViewportBaselineHeight=visibleHeight;
- if(!freeInputFocused)quickFreeInputViewportSession=false;
-}
-const scheduleQuickViewportSync=()=>requestAnimationFrame(syncQuickViewportHeight);
-if(window.visualViewport){window.visualViewport.addEventListener("resize",scheduleQuickViewportSync);window.visualViewport.addEventListener("scroll",scheduleQuickViewportSync)}
-window.addEventListener("resize",scheduleQuickViewportSync);
-document.addEventListener("focusin",scheduleQuickViewportSync,true);
-document.addEventListener("focusout",scheduleQuickViewportSync,true);
-syncQuickViewportHeight();
+
 function tokenize(source){let parts;if(typeof Intl.Segmenter==="function"){parts=Array.from(new Intl.Segmenter(undefined,{granularity:"word"}).segment(source),x=>({text:x.segment,start:x.index}))}else{const re=/\s+|[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]+|[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*|[^\s]/gu;parts=Array.from(source.matchAll(re),m=>({text:m[0],start:m.index}))}return parts.filter(x=>!/^[\s]+$/u.test(x.text)).map(x=>({text:x.text,start:x.start,end:x.start+x.text.length}))}
 function renderQuickMathText(target,value){const source=String(value??"");const pattern=/\\frac\{([^{}]+)\}\{([^{}]+)\}|\\frac([0-9])([0-9])|(\d+)\s*\/\s*(\d+)/g;let cursor=0;target.replaceChildren();for(const match of source.matchAll(pattern)){if(match[5]!==undefined&&(source[match.index-1]==="/"||source[match.index+match[0].length]==="/"))continue;const index=match.index;if(index>cursor)target.append(document.createTextNode(source.slice(cursor,index)));const numerator=match[1]??match[3]??match[5],denominator=match[2]??match[4]??match[6],fraction=document.createElement("span");fraction.className="quick-fraction";fraction.setAttribute("role","math");fraction.setAttribute("aria-label",`${numerator} over ${denominator}`);const top=document.createElement("span");top.className="quick-fraction__numerator";top.textContent=numerator;const bar=document.createElement("span");bar.className="quick-fraction__bar";bar.setAttribute("aria-hidden","true");const bottom=document.createElement("span");bottom.className="quick-fraction__denominator";bottom.textContent=denominator;fraction.append(top,bar,bottom);target.append(fraction);cursor=index+match[0].length}if(cursor<source.length)target.append(document.createTextNode(source.slice(cursor)))}
 window.QuickMathDisplay=Object.freeze({render:renderQuickMathText});
