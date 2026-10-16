@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>GW0003 · 己亥杂诗｜古诗文回收卡</title>
+<style>
+  :root { color-scheme: light; --paper:#fff; --bg:#f8fafb; --text:#253240; --muted:#77818c; --line:#e5e9ec; --covered:#e6ebef; --uncovered:#f3f5f6; --marked:#f8e9df; --marked-text:#b86642; }
+  * { box-sizing:border-box; }
+  body {margin:0; padding:20px 280px; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  main { width:100%; max-width:none; margin:0; }
+  .sheet {width:100%;height:auto;min-height:calc(100vh - 40px);min-height:calc(100dvh - 40px);display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:17px;padding:20px;}
+  .header {display:flex;justify-content:space-between;align-items:flex-start;gap:14px;}
+  h1 {font-size:27px;letter-spacing:.08em;font-weight:650;margin:0;line-height:1.4;}
+  .actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+  button{font-family:inherit;cursor:pointer;}
+  .reset {border:1px solid var(--line);background:white;color:var(--muted);font-size:12px;padding:5px 11px;min-height:31px;border-radius:7px;}
+  .tabs {display:flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:7px;}
+  .tab{font-size:12px;font-weight:600;color:var(--muted);border:0;border-radius:5px;background:transparent;padding:4px 8px;min-width:34px;min-height:27px;}
+  .tab[aria-pressed="true"]{background:var(--covered);color:var(--text);}
+  @media (hover:hover) and (pointer:fine){.tab:hover{background:var(--covered);color:var(--text);}}
+  .meta {display:flex;flex-wrap:wrap;gap:18px;align-items:baseline;margin-top:10px;font-size:16px;line-height:2.15;}
+  .meta-label{color:var(--muted);}
+  .mask{font:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;background:none;border:0;border-radius:4px;padding:0;text-align:left;cursor:pointer;}
+  .mask .ink{color:transparent;background:var(--covered);border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  .mask[data-state="1"] .ink{color:var(--text);background:var(--uncovered);}
+  .mask[data-state="2"] .ink{color:var(--marked-text);background:var(--marked);font-weight:650;}
+  .mask:focus-visible,.tab:focus-visible,.reset:focus-visible,.copy:focus-visible,.comment:focus-visible{outline:2px solid #5989ad;outline-offset:3px;}
+  .meta .ink{padding:3px 6px;}
+  .poem{padding:34px 0 33px;border-bottom:1px solid var(--line);}
+  .verse{display:flex;justify-content:center;align-items:baseline;white-space:nowrap;font-family:"Songti SC","STSong","SimSun",serif;font-size:clamp(20px,3.7vw,31px);letter-spacing:0;line-height:2.2;}
+  .char{display:inline-block;width:1.05em;text-align:center;flex:0 0 1.05em;font-weight:normal;}
+  .verse .mask{display:inline-flex;position:relative;flex-shrink:0;line-height:inherit;isolation:isolate;}
+  .verse .mask .ink{display:inline-flex;position:relative;z-index:1;background:transparent!important;border-radius:0;padding:0;font-weight:normal;}
+  .verse .mask[data-state="0"] .ink{color:transparent;}
+  .verse .mask[data-state="1"] .ink{color:var(--text);}
+  .verse .mask[data-state="2"] .ink{color:var(--marked-text);font-weight:650;}
+  .verse .mask::after{content:"";position:absolute;inset:9px 1px;background:var(--covered);border-radius:3px;z-index:0;pointer-events:none;}
+  .verse .mask[data-state="1"]::after{background:var(--uncovered);}
+  .verse .mask[data-state="2"]::after{background:var(--marked);}
+  .section{padding-top:22px;}
+  .section+.section{margin-top:19px;border-top:1px solid var(--line);}
+  .section h2{font-size:13px;font-weight:600;color:var(--muted);margin:0 0 8px;line-height:1.5;}
+  .notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 25px;font-size:16px;}
+  .note{display:flex;align-items:baseline;gap:10px;min-width:0;line-height:2.2;}
+  .note strong{flex-shrink:0;font-weight:600;}
+  .note .ink{padding:3px 5px;}
+  .interpretation{font-size:16px;line-height:2.2;overflow-wrap:anywhere;}
+  .meaning-part{display:inline;vertical-align:baseline;margin-right:10px;white-space:normal;overflow-wrap:anywhere;}
+  .meaning-part .ink{padding:5px;}
+  .footer{position:sticky;bottom:0;z-index:3;padding:20px 0 0;border-top:1px solid var(--line);margin-top:auto;background:var(--paper);}
+  .footer-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:20px;margin-bottom:9px;}
+  .footer-label{display:block;font-size:13px;color:var(--muted);font-weight:600;margin:0;flex-shrink:0;}
+  .footer-actions{display:flex;gap:11px;align-items:stretch;}
+  .comment{min-width:0;flex:1;border:1px solid #d9e0e5;border-radius:9px;background:#fff;color:var(--text);font-size:16px;line-height:1.4;padding:12px 14px;}
+  .comment::placeholder{color:#a0a8b0;}
+  .copy{flex-shrink:0;border:1px solid #171717;border-radius:9px;padding:12px 23px;font-size:15px;font-weight:600;background:#171717;color:#fff;}
+  .copy[disabled]{opacity:.6;cursor:wait;}
+  .status{font-size:12px;color:var(--muted);margin:0;line-height:1.35;text-align:right;overflow-wrap:anywhere;}
+  @media(max-width:1399px){body{padding:20px clamp(20px,8vw,140px)}}
+  @media(max-width:700px){body{padding:20px}.sheet{padding:20px}.header{gap:8px}h1{font-size:23px}.actions{gap:4px}.reset{padding:4px 7px}.tab{padding:3px 6px;min-width:31px}.poem{padding:22px 0}.verse{font-size:clamp(17px,5.25vw,25px)}.notes{grid-template-columns:1fr;gap:5px}.footer-actions{gap:8px}.copy{padding:11px 13px}}
+  @media(max-width:440px){.header{flex-wrap:wrap}.actions{margin-left:auto}.footer-actions{flex-wrap:wrap}.copy{width:100%}}
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;}}
+</style>
+</head>
+<body>
+<main>
+<div class="sheet" id="poem-card">
+<header class="header"><h1>己亥杂诗</h1><div class="actions"><button class="reset" id="reset-all" type="button">↺ 重置</button><div aria-label="诗句挖空等级" class="tabs" role="group"><button aria-pressed="true" class="tab" data-level="low" type="button">低</button><button aria-pressed="false" class="tab" data-level="mid" type="button">中</button><button aria-pressed="false" class="tab" data-level="high" type="button">高</button></div></div></header>
+<div class="meta"><span><span class="meta-label">朝代：</span><button aria-label="朝代，点击揭晓" class="mask" data-item="dynasty" data-state="0" type="button"><span class="ink">清代</span></button></span><span><span class="meta-label">作者：</span><button aria-label="作者，点击揭晓" class="mask" data-item="author" data-state="0" type="button"><span class="ink">龚自珍</span></button></span></div>
+<div aria-label="己亥杂诗原诗" class="poem" id="verses"></div>
+<section class="section"><h2>重点注释</h2><div class="notes"><div class="note"><strong>九州</strong><button aria-label="揭晓九州的注释" class="mask" data-item="note-1" data-state="0" type="button"><span class="ink">指中国。</span></button></div><div class="note"><strong>生气</strong><button aria-label="揭晓生气的注释" class="mask" data-item="note-2" data-state="0" type="button"><span class="ink">生机、活力。</span></button></div><div class="note"><strong>恃</strong><button aria-label="揭晓恃的注释" class="mask" data-item="note-3" data-state="0" type="button"><span class="ink">依靠。</span></button></div><div class="note"><strong>喑</strong><button aria-label="揭晓喑的注释" class="mask" data-item="note-4" data-state="0" type="button"><span class="ink">不出声，沉默。</span></button></div><div class="note"><strong>重抖擞</strong><button aria-label="揭晓重抖擞的注释" class="mask" data-item="note-5" data-state="0" type="button"><span class="ink">重新振作精神；“重”读 chóng。</span></button></div><div class="note"><strong>不拘一格</strong><button aria-label="揭晓不拘一格的注释" class="mask" data-item="note-6" data-state="0" type="button"><span class="ink">不局限于一种规格或标准。</span></button></div><div class="note"><strong>降人才</strong><button aria-label="揭晓降人才的注释" class="mask" data-item="note-7" data-state="0" type="button"><span class="ink">使人才出现、涌现。</span></button></div></div></section>
+<section class="section"><h2>诗意</h2><div class="interpretation"><button aria-label="揭晓第1句诗意" class="mask meaning-part" data-item="meaning-1" data-state="0" type="button"><span class="ink">中国要重新焕发生机与活力，需要依靠风雷般的巨大力量。</span></button><button aria-label="揭晓第2句诗意" class="mask meaning-part" data-item="meaning-2" data-state="0" type="button"><span class="ink">社会一片沉寂，实在令人悲哀。</span></button><button aria-label="揭晓第3句诗意" class="mask meaning-part" data-item="meaning-3" data-state="0" type="button"><span class="ink">我劝上天重新振作精神，</span></button><button aria-label="揭晓第4句诗意" class="mask meaning-part" data-item="meaning-4" data-state="0" type="button"><span class="ink">不要拘泥于一种标准，让更多有才能的人涌现。</span></button></div></section>
+<footer class="footer"><div class="footer-heading"><label class="footer-label" for="parent-comment">补充说明</label><p aria-live="polite" class="status" id="copy-status" role="status"></p></div><div class="footer-actions"><input autocomplete="off" class="comment" id="parent-comment" placeholder="例如：诗意只做回顾，没有检查" type="text"/><button class="copy" id="copy-result" type="button">复制结果</button></div></footer>
+</div>
+</main>
+<script>
+(function(){
+'use strict';
+const card=document.getElementById('poem-card');
+const verses=card.querySelector('#verses');
+const comment=card.querySelector('#parent-comment');
+const status=card.querySelector('#copy-status');
+const copy=card.querySelector('#copy-result');
+const storeKey='GW0003-jihaizashi-card-v1';
+const lines=["九州生气恃风雷，", "万马齐喑究可哀。", "我劝天公重抖擞，", "不拘一格降人才。"];
+const ranges={"low": [[[2, 4]], [[3, 4]], [[4, 7]], [[4, 7]]], "mid": [[[2, 7]], [[2, 7]], [[2, 7]], [[2, 7]]], "high": [[[0, 7]], [[0, 7]], [[0, 7]], [[0, 7]]]};
+const labels={"dynasty": "朝代", "author": "作者", "note-1": "注释·九州", "note-2": "注释·生气", "note-3": "注释·恃", "note-4": "注释·喑", "note-5": "注释·重抖擞", "note-6": "注释·不拘一格", "note-7": "注释·降人才", "meaning-1": "诗意·第1句", "meaning-2": "诗意·第2句", "meaning-3": "诗意·第3句", "meaning-4": "诗意·第4句"};
+let level='low';
+function char(c){const s=document.createElement('span');s.className='char';s.textContent=c;return s;}
+function drawVerse(){verses.replaceChildren();lines.forEach((line,i)=>{const row=document.createElement('div');row.className='verse';let pos=0;while(pos<line.length){const range=ranges[level][i].find(pair=>pair[0]===pos);if(range){const button=document.createElement('button');button.type='button';button.className='mask';button.dataset.state='0';button.dataset.item=`verse-${i+1}-${range[0]}-${range[1]}`;button.dataset.desc=`第${i+1}句·${line.slice(range[0],range[1])}`;button.setAttribute('aria-label','揭晓诗句');const ink=document.createElement('span');ink.className='ink';for(let j=range[0];j<range[1];j++)ink.appendChild(char(line[j]));button.appendChild(ink);row.appendChild(button);pos=range[1];}else{row.appendChild(char(line[pos]));pos++;}}verses.appendChild(row);});card.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.level===level)));}
+function save(){const states={};card.querySelectorAll('button.mask').forEach(b=>states[b.dataset.item]=b.dataset.state);try{localStorage.setItem(storeKey,JSON.stringify({level,states,comment:comment.value}));}catch(e){/* Local persistence may be unavailable. */}}
+function restore(){try{const x=JSON.parse(localStorage.getItem(storeKey)||'null');if(!x||!ranges[x.level])return;level=x.level;drawVerse();comment.value=typeof x.comment==='string'?x.comment:'';card.querySelectorAll('button.mask').forEach(b=>{const s=x.states&&x.states[b.dataset.item];if(['0','1','2'].includes(s))b.dataset.state=s;});}catch(e){/* Use defaults. */}}
+function reset(){drawVerse();card.querySelectorAll('button.mask').forEach(b=>b.dataset.state='0');comment.value='';status.textContent='';save();}
+function label(b){return b.dataset.desc||labels[b.dataset.item]||b.dataset.item;}
+function getResult(){const now=new Date();const pad=n=>String(n).padStart(2,'0');const date=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;const map={low:'低',mid:'中',high:'高'};let arr=[`古诗文回收卡｜GW0003｜己亥杂诗`,`记录时间：${date}`,`挖空等级：${map[level]}`,`来源：网页操作记录（不等于孩子答题成绩）`];for(const [name,selector] of [['诗句', '#verses button.mask'],['基本信息','.meta button.mask'],['重点注释','.notes button.mask'],['诗意','.interpretation button.mask']]){arr.push('',`【${name}】`);const bs=[...card.querySelectorAll(selector)];let seen=0;for(const b of bs){const state=Number(b.dataset.state||0);if(!state)continue;seen++;arr.push(`${label(b)}：${state===2?'揭晓且标记不熟练':'已揭晓（是否实际核对未判）'}`);}if(!seen)arr.push('未揭晓／未记录检查');}arr.push('',`家长补充说明：${comment.value.trim()||'（未填写）'}`,'证据边界：仅点击揭晓和未标弱，不能自动登记为熟练；若仅回顾、未口头核对，请依家长说明判读。');return arr.join('\n');}
+async function writeClipboard(value){if(navigator.clipboard&&navigator.clipboard.writeText){try{await navigator.clipboard.writeText(value);return true;}catch(e){/* try legacy fallback */}}const area=document.createElement('textarea');area.value=value;area.style.position='fixed';area.style.opacity='0';area.style.left='-9999px';document.body.appendChild(area);area.select();let ok=false;try{ok=document.execCommand('copy');}catch(e){}area.remove();return ok;}
+card.addEventListener('click',event=>{const b=event.target.closest('button');if(!b||!card.contains(b))return;if(b.id==='reset-all'){reset();return;}if(b.dataset.level){level=b.dataset.level;drawVerse();save();status.textContent='';return;}if(b.classList.contains('mask')){const s=Number(b.dataset.state||0);b.dataset.state=String(s===0?1:s===1?2:1);save();status.textContent='';}});
+comment.addEventListener('input',save);
+copy.addEventListener('click',async()=>{copy.disabled=true;const ok=await writeClipboard(getResult());copy.disabled=false;status.textContent=ok?'✓ 已复制，可粘贴给回收小助手':'复制失败，请检查剪贴板权限';});
+drawVerse();restore();
+})();
+</script>
+</body>
+</html>
