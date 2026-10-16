@@ -96,7 +96,7 @@ const storeKey='GW0001-shier-card-v1';
 const lines=['死去元知万事空，','但悲不见九州同。','王师北定中原日，','家祭无忘告乃翁。'];
 const ranges={low:[[[2,4]],[[0,2]],[[2,4]],[[5,7]]],mid:[[[2,6]],[[0,4]],[[2,7]],[[2,7]]],high:[[[0,7]],[[0,7]],[[0,7]],[[0,7]]]};
 const labels={dynasty:'朝代',author:'作者','note-yuanzhi':'注释·元知','note-dan':'注释·但','note-wangshi':'注释·王师','note-naiweng':'注释·乃翁','meaning-1':'诗意·第1句','meaning-2':'诗意·第2句','meaning-3':'诗意·第3句','meaning-4':'诗意·第4句'};
-let level='low';
+let level='high';
 function char(c){const s=document.createElement('span');s.className='char';s.textContent=c;return s;}
 function drawVerse(){verses.replaceChildren();lines.forEach((line,i)=>{const row=document.createElement('div');row.className='verse';let pos=0;while(pos<line.length){const range=ranges[level][i].find(pair=>pair[0]===pos);if(range){const button=document.createElement('button');button.type='button';button.className='mask';button.dataset.state='0';button.dataset.item=`verse-${i+1}-${range[0]}-${range[1]}`;button.dataset.desc=`第${i+1}句·${line.slice(range[0],range[1])}`;button.setAttribute('aria-label','揭晓诗句');const ink=document.createElement('span');ink.className='ink';for(let j=range[0];j<range[1];j++)ink.appendChild(char(line[j]));button.appendChild(ink);row.appendChild(button);pos=range[1];}else{row.appendChild(char(line[pos]));pos++;}}verses.appendChild(row);});card.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.level===level)));}
 function save(){const states={};card.querySelectorAll('button.mask').forEach(b=>states[b.dataset.item]=b.dataset.state);try{localStorage.setItem(storeKey,JSON.stringify({level,states,comment:comment.value}));}catch(e){/* Local persistence may be unavailable. */}}
