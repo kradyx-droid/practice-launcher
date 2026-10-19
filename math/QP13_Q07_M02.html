@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-recap-state="ok"><head><script>(function () {
+  var RESIZE = 'voice-recorder:resize';
+  var MEASURE = 'voice-recorder:measure';
+  var STATE_ATTRIBUTE = 'data-recap-state';
+  var DEFAULT_STATE = 'ok';
+  var MEASURE_FALLBACK_DELAY = 120;
+  var pending = false;
+  var pendingTimer = null;
+  var lastHeight = 0;
+  var lastBackgroundColor;
+  var raf = window.requestAnimationFrame
+    || window.webkitRequestAnimationFrame
+    || function (callback) { return setTimeout(callback, 16); };
+
+  function readState() {
+    try {
+      return document.documentElement.getAttribute(STATE_ATTRIBUTE) || DEFAULT_STATE;
+    } catch (error) {
+      return DEFAULT_STATE;
+    }
+  }
+
+  function isBlankColor(color) {
+    return !color || color === 'transparent' || /^rgba\([^)]*,\s*0\s*\)$/.test(color);
+  }
+
+  function readBackgroundColor() {
+    try {
+      var elements = [document.body, document.documentElement];
+      for (var i = 0; i < elements.length; i += 1) {
+        if (!elements[i]) continue;
+        var color = getComputedStyle(elements[i]).backgroundColor;
+        if (isBlankColor(color)) continue;
+        // 半透明色无法直接作为外层底色，交给现有主题默认色兜底。
+        if (/^rgba\(/.test(color) && !/,\s*1\s*\)$/.test(color)) return '';
+        return color;
+      }
+    } catch (error) {
+      // 取色失败不影响高度同步。
+    }
+    return '';
+  }
+
+  function measure() {
+    pending = false;
+    if (pendingTimer) {
+      clearTimeout(pendingTimer);
+      pendingTimer = null;
+    }
+    var body = document.body;
+    if (!body) return;
+    var style = getComputedStyle(body);
+    var height = Math.ceil(Math.max(body.scrollHeight, body.offsetHeight)
+      + (parseFloat(style.marginTop) || 0) + (parseFloat(style.marginBottom) || 0));
+    var backgroundColor = readBackgroundColor();
+    if (height <= 0 || (height === lastHeight && backgroundColor === lastBackgroundColor)) return;
+    lastHeight = height;
+    lastBackgroundColor = backgroundColor;
+    window.parent.postMessage({
+      type: RESIZE,
+      height: height,
+      backgroundColor: backgroundColor,
+      state: readState(),
+    }, '*');
+  }
+
+  function reportHeight() {
+    if (pending) return;
+    pending = true;
+    // rAF 在后台标签或被节流时可能长期不触发，用定时器兜底解锁，避免闩锁永久卡住。
+    pendingTimer = setTimeout(measure, MEASURE_FALLBACK_DELAY);
+    raf(measure);
+  }
+
+  window.addEventListener('message', function (event) {
+    if (event.source !== window.parent || !event.data || event.data.type !== MEASURE) return;
+    lastHeight = 0;
+    reportHeight();
+  });
+
+  function watchImages() {
+    var images = document.images || [];
+    for (var i = 0; i < images.length; i += 1) {
+      if (images[i].complete || !images[i].addEventListener) continue;
+      images[i].addEventListener('load', reportHeight);
+      images[i].addEventListener('error', reportHeight);
+    }
+  }
+
+  function observe() {
+    if (window.ResizeObserver) {
+      var sizeObserver = new ResizeObserver(reportHeight);
+      sizeObserver.observe(document.documentElement);
+      if (document.body) sizeObserver.observe(document.body);
+    }
+    if (window.MutationObserver) {
+      // 子树变化也要观察：未标注宽高的图片和异步样式都会改变正文高度。
+      new MutationObserver(reportHeight).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme'],
+        childList: true,
+        subtree: true,
+      });
+    }
+    if (window.matchMedia) {
+      var theme = window.matchMedia('(prefers-color-scheme: dark)');
+      if (theme.addEventListener) theme.addEventListener('change', reportHeight);
+      else if (theme.addListener) theme.addListener(reportHeight);
+    }
+    watchImages();
+    reportHeight();
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      document.fonts.ready.then(reportHeight);
+    }
+  }
+
+  if (document.readyState === 'loading' && document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', observe);
+  } else {
+    observe();
+  }
+  window.addEventListener('load', reportHeight);
+  window.addEventListener('resize', reportHeight);
+})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="content-status" content="substantive">
+<title>买够 5 升，甲乙两店哪家划算？</title>
+<meta name="artifact-kind" content="mixed">
+<style>
+  :root{
+    color-scheme: light dark;
+    --page-bg:#F1F4F7;
+    --card-bg:#FFFFFF;
+    --card-bg2:#F5F8FA;
+    --ink:#17232E;
+    --ink-2:#48586A;
+    --ink-3:#7B8B9A;
+    --line:#DFE6EC;
+    --jia:#2E6BE6;
+    --jia-soft:#EBF2FE;
+    --jia-line:#C6D9F8;
+    --yi:#0B9186;
+    --yi-soft:#E6F4F1;
+    --yi-line:#BFE3DC;
+    --warn:#B26A08;
+    --warn-soft:#FBF2E2;
+    --on-accent:#FFFFFF;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page-bg:#0D1418;
+      --card-bg:#151E24;
+      --card-bg2:#1B262D;
+      --ink:#E8EEF3;
+      --ink-2:#A9B8C4;
+      --ink-3:#7E8F9C;
+      --line:#273440;
+      --jia:#79A7F2;
+      --jia-soft:#17253D;
+      --jia-line:#2E4B79;
+      --yi:#3FC9BA;
+      --yi-soft:#0F2C29;
+      --yi-line:#20504A;
+      --warn:#E3A64F;
+      --warn-soft:#2C2312;
+      --on-accent:#0A141A;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{color-scheme:light dark}
+  html,body{background-color:var(--page-bg)}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    color:var(--ink);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:0 18px 64px}
+  .num{font-variant-numeric:tabular-nums}
+
+  .hero{padding:34px 0 6px}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--ink-3);margin-bottom:10px}
+  h1{font-size:clamp(25px,5.6vw,34px);line-height:1.32;letter-spacing:.01em;font-weight:700}
+  .lede{margin-top:12px;font-size:15px;color:var(--ink-2);max-width:44em}
+  .lede strong{color:var(--ink)}
+  .lede .yi-t{color:var(--yi);font-weight:700}
+  .steps{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .steps li{display:flex;align-items:center;gap:8px;background:var(--card-bg);border:1px solid var(--line);border-radius:999px;padding:5px 14px 5px 5px;font-size:13px;color:var(--ink-2)}
+  .steps .n{width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--page-bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}
+
+  .card{background:var(--card-bg);border:1px solid var(--line);border-radius:18px;padding:22px 20px;margin-top:22px}
+  .card.final{border-top:3px solid var(--yi)}
+  .step-tag{display:inline-flex;font-size:11.5px;font-weight:700;letter-spacing:.1em;color:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:3px 11px;margin-bottom:12px}
+  h2{font-size:20px;line-height:1.4;margin-bottom:10px;font-weight:700}
+  .card p{font-size:14.5px;color:var(--ink-2)}
+  strong{color:var(--ink);font-weight:600}
+  .note{margin-top:14px;font-size:13px;color:var(--ink-3);padding-left:11px;border-left:2px solid var(--line);line-height:1.75}
+
+  .req{display:flex;align-items:center;gap:10px;background:var(--card-bg2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--ink)}
+  .req .rl{font-size:11.5px;font-weight:700;letter-spacing:.08em;color:var(--page-bg);background:var(--ink);border-radius:6px;padding:2px 8px;flex:none}
+  .store-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+  @media(min-width:560px){.store-grid{grid-template-columns:1fr 1fr}}
+  .store{border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+  .store.jia{background:var(--jia-soft);border-color:var(--jia-line)}
+  .store.yi{background:var(--yi-soft);border-color:var(--yi-line)}
+  .store h3{font-size:14px;display:flex;align-items:center;gap:7px;letter-spacing:.04em}
+  .store.jia h3{color:var(--jia)}
+  .store.yi h3{color:var(--yi)}
+  .dot{width:9px;height:9px;border-radius:3px;flex:none}
+  .store.jia .dot{background:var(--jia)}
+  .store.yi .dot{background:var(--yi)}
+  .price{margin-top:8px;font-size:26px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
+  .price small{font-size:12.5px;font-weight:400;color:var(--ink-3);margin-left:2px}
+  .promo{margin-top:7px;font-size:13px;color:var(--ink-2);line-height:1.6}
+
+  .fig{margin-top:16px;border:1px solid var(--line);border-radius:14px;padding:16px 15px;background:var(--card-bg2)}
+  .fig figcaption{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.5}
+  .fig-note{font-size:11.5px;color:var(--ink-3);margin-top:10px;line-height:1.6}
+
+  .demo-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .stepper{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card-bg)}
+  .stepper button{width:42px;height:40px;border:none;background:transparent;color:var(--ink);font-size:19px;cursor:pointer;line-height:1}
+  .stepper button:hover{background:var(--card-bg2)}
+  .stepper .count{min-width:86px;padding:0 8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+  .presets{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:var(--card-bg);color:var(--ink-2);border-radius:999px;padding:7px 13px;font-size:12.5px;cursor:pointer;font-variant-numeric:tabular-nums}
+  .chip:hover{border-color:var(--ink-3)}
+  .chip.active{background:var(--ink);color:var(--page-bg);border-color:var(--ink);font-weight:600}
+  button:focus-visible{outline:2px solid var(--jia);outline-offset:2px}
+
+  .scalewrap{position:relative;padding-top:22px}
+  .thr-label{position:absolute;top:0;left:92.59%;transform:translateX(-50%);font-size:11px;font-weight:600;color:var(--ink-2);white-space:nowrap}
+  .scale{position:relative;height:56px;background:var(--card-bg2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .fill{position:absolute;left:0;top:0;bottom:0;transition:width .25s ease;border-radius:9px 0 0 9px}
+  .fill.lack{background:var(--warn)}
+  .fill.ok{background:var(--yi)}
+  .frac{position:absolute;top:0;bottom:0;left:88.89%;width:3.7%;display:none;border:2px dashed var(--yi);border-left:none;border-radius:0 8px 8px 0;background:repeating-linear-gradient(45deg,transparent,transparent 4px,var(--yi-soft) 4px,var(--yi-soft) 8px)}
+  .thr{position:absolute;top:0;bottom:0;left:92.59%;border-left:2px dashed var(--ink-2)}
+  .ticks{position:relative;height:18px;margin-top:5px}
+  .ticks span{position:absolute;transform:translateX(-50%);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .ticks .t0{transform:none}
+  .verdict{margin-top:12px;font-size:14px;font-weight:600;padding:10px 12px;border-radius:10px;line-height:1.6;font-variant-numeric:tabular-nums}
+  .verdict.lack{background:var(--warn-soft);color:var(--warn)}
+  .verdict.ok{background:var(--yi-soft);color:var(--yi)}
+  .verdict.mid{background:var(--card-bg2);color:var(--ink)}
+  .demo-hint{font-size:12px;color:var(--ink-3);margin-top:10px;font-variant-numeric:tabular-nums}
+  .insight{margin-top:16px;font-size:13px;line-height:1.8;color:var(--ink-2);background:var(--card-bg2);border-left:3px solid var(--yi);padding:10px 13px;border-radius:0 10px 10px 0}
+
+  .calc-intro{font-size:14.5px;color:var(--ink-2)}
+  .calc-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:16px}
+  @media(min-width:720px){.calc-grid{grid-template-columns:1fr 1fr}}
+  .calc{border-top:1px solid var(--line);padding-top:16px}
+  .calc h3{font-size:15px;display:flex;align-items:center;gap:7px;margin-bottom:4px}
+  .calc h3 .dot{width:9px;height:9px;border-radius:3px;flex:none}
+  .calc.jia h3{color:var(--jia)} .calc.jia .dot{background:var(--jia)}
+  .calc.yi h3{color:var(--yi)} .calc.yi .dot{background:var(--yi)}
+  .calc .promo-line{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}
+  .fig.plain{border:none;background:transparent;padding:0;margin-top:0}
+  .formula{margin-top:12px;font-size:13.5px;color:var(--ink-2);background:var(--card-bg2);border-radius:10px;padding:10px 12px;line-height:1.9;font-variant-numeric:tabular-nums}
+  .formula strong{font-size:15px}
+
+  .groups{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .grp{border:1px dashed var(--jia-line);border-radius:10px;padding:8px 6px;background:var(--jia-soft);text-align:center}
+  .gname{display:block;font-size:10.5px;color:var(--ink-3);margin-bottom:6px}
+  .boxes{display:flex;justify-content:center;gap:3px}
+  .bx{width:19px;height:25px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex:none}
+  .bx.paid{background:var(--jia)}
+  .bx.free{border:1.5px dashed var(--jia);color:var(--jia);background:transparent}
+  .pay{display:block;margin-top:6px;font-size:10.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+  .brk{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:flex-start}
+  .bclu{display:flex;flex-direction:column;align-items:center;gap:5px}
+  .brow{display:flex;gap:3px}
+  .yb{width:19px;height:25px;border-radius:5px;background:var(--yi);flex:none}
+  .yb.rest{background:transparent;border:1.5px dashed var(--ink-3)}
+  .btag{font-size:11px;font-weight:700;color:var(--yi);background:var(--yi-soft);border:1px solid var(--yi-line);border-radius:6px;padding:1px 7px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .btag.mute{color:var(--ink-3);background:transparent;border-color:var(--line);font-weight:400}
+
+  .bars{margin-top:4px}
+  .bar-row{display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:10px;margin-top:12px}
+  .bar-label{font-size:13px;font-weight:700;text-align:right}
+  .bar-label.jia{color:var(--jia)} .bar-label.yi{color:var(--yi)}
+  .bar-track{height:28px;background:var(--card-bg2);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .bar{height:100%}
+  .bar.jia{background:var(--jia)}
+  .bar.yi{background:var(--yi)}
+  .bar-val{font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .badge{font-size:10.5px;font-weight:700;background:var(--yi);color:var(--on-accent);border-radius:5px;padding:1.5px 6px;margin-left:5px;vertical-align:1px}
+  .delta{text-align:center;margin-top:14px;font-size:13.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .warn{margin-top:14px;background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 13px;font-size:13.5px;font-weight:600;line-height:1.7}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none!important}
+  }
+  @media (max-width:380px){
+    .card{padding:18px 15px}
+    .thr-label{transform:translateX(-85%)}
+  }
+</style>
+<style id="recording-agent-mobile-safety">
+/* Component-name-agnostic mobile safety net.
+   Structural guarantees are expressed against CSS Grid/Flex behaviour and
+   generic attribute hooks rather than a fixed class vocabulary, so generating
+   models may invent component names freely for any recording type. */
+*, *::before, *::after { box-sizing: border-box; }
+html { width: 100%; min-width: 0; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { width: 100%; min-width: 0; margin: 0; overflow-wrap: break-word; }
+main, header, footer, nav, section, article, aside, figure, div, ul, ol, li, dl, dd, details { min-width: 0; }
+img, picture, video, canvas, svg { display: block; max-width: 100%; height: auto; }
+pre, code, kbd, samp { max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
+h1, h2, h3, h4, h5, h6, p, li, td, th, dt, dd, blockquote, figcaption { overflow-wrap: anywhere; }
+input, textarea, select, button { max-width: 100%; font: inherit; }
+/* Any table gets a scroll container by intent or by generic hook. */
+.table-scroll, .table-wrap, .matrix-wrap, [data-table-scroll], [data-scroll-x] {
+  max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.table-scroll > table, .table-wrap > table, .matrix-wrap > table,
+[data-table-scroll] > table, [data-scroll-x] > table { margin: 0; }
+/* Numbered step rows: keep body copy out of the counter track. */
+.step-item, [data-step-item] { grid-template-columns: 32px minmax(0, 1fr) !important; }
+.step-item::before, [data-step-item]::before { grid-column: 1 !important; grid-row: 1 !important; }
+.step-item > :empty, [data-step-item] > :empty { display: none !important; }
+.step-item > *, [data-step-item] > * { grid-column: 2 !important; min-width: 0 !important; }
+.data-value, .metric-value, [data-value] { max-width: 100%; font-variant-numeric: tabular-nums; }
+/* A single surviving child of ANY grid spans the full row. Applied to every
+   element that declares a grid, so unknown component names are covered too. */
+[class*="grid"] > :only-child,
+[class*="board"] > :only-child,
+[class*="cluster"] > :only-child,
+[class*="row"] > :only-child,
+[class*="split"] > :only-child,
+[class*="cols"] > :only-child,
+[class*="columns"] > :only-child,
+[class*="layout"] > :only-child,
+[class*="panel"] > :only-child,
+[data-grid] > :only-child,
+[data-cols] > :only-child {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+@media (max-width: 600px) {
+  body { font-size: 14.5px !important; line-height: 1.62 !important; }
+  :where(body > main, body > .report-shell, body > .report, body > .container, body > [data-shell]) {
+    width: calc(100% - 40px) !important;
+    max-width: 100% !important;
+    margin-inline: auto !important;
+  }
+  h1 { font-size: 29px !important; line-height: 1.22 !important; letter-spacing: 0 !important; }
+  h2 { font-size: 22px !important; line-height: 1.3 !important; letter-spacing: 0 !important; }
+  h3 { font-size: 16px !important; line-height: 1.42 !important; letter-spacing: 0 !important; }
+  /* Generic collapse: every multi-column grid becomes single column unless it
+     explicitly opts into staying paired (data-keep-columns) or is a table. */
+  [class*="grid"]:not([data-keep-columns]),
+  [class*="board"]:not([data-keep-columns]),
+  [class*="split"]:not([data-keep-columns]),
+  [class*="cols"]:not([data-keep-columns]),
+  [class*="columns"]:not([data-keep-columns]),
+  [class*="layout"]:not([data-keep-columns]),
+  [data-grid]:not([data-keep-columns]) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  /* Compact numeric clusters may stay two-up, but a trailing odd card must
+     span both columns so no empty half-row is left on narrow screens. */
+  [data-keep-columns] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  [data-keep-columns] > :last-child:nth-child(odd) { grid-column: 1 / -1 !important; }
+  [data-span-all], [data-value-kind="formula"], [data-value-kind="range"] { grid-column: 1 / -1 !important; }
+  /* Horizontal flows become vertical. */
+  [class*="flow"], [class*="chain"], [class*="timeline"] { flex-direction: column !important; }
+  [class*="arrow"] { transform: rotate(90deg); min-height: 16px !important; }
+  table { font-size: 12.5px; }
+  th, td { padding: 9px 8px !important; }
+  nav { max-width: 100%; }
+  nav[data-scrollable] { overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; }
+  button, summary, [role="button"] { min-width: 44px; min-height: 44px; }
+  nav a { display: inline-flex; min-width: 44px; min-height: 44px; padding: 6px 10px !important; align-items: center; justify-content: center; font-size: 12.5px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+<style id="recording-agent-first-viewport-safety">
+body > :first-child { margin-top: 0 !important; }
+:where(body, body > main, [class*="shell"], [class*="container"]) > :where(
+  [class*="hero"], [class*="cover"], [data-hero]
+):first-child {
+  min-height: auto !important;
+  max-height: none !important;
+  margin-top: 0 !important;
+  padding-top: min(40px, 8vw) !important;
+}
+@media (max-width: 600px) {
+  :where(body, body > main, [class*="shell"], [class*="container"]) > :where(
+    [class*="hero"], [class*="cover"], [data-hero]
+  ):first-child { padding-top: 20px !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="kicker">数学辅导实录 · 小数与优惠方案题</p>
+    <h1>买够 5 升，甲乙两店哪家划算？</h1>
+    <p class="lede">结论：<strong class="yi-t">选乙店</strong>——实付 <strong class="num">100.1 元</strong>，比甲店的 <strong class="num">101.6 元</strong> 省 <strong class="num">1.5 元</strong>。做法分三步：先换算定盒数，再套优惠算总价，最后比总价。</p>
+    <ol class="steps">
+      <li><span class="n">1</span>5 升 ↔ 毫升，定买几盒</li>
+      <li><span class="n">2</span>套用优惠，算总价</li>
+      <li><span class="n">3</span>比总价，选店</li>
+    </ol>
+  </header>
+
+  <main>
+
+    <section class="card">
+      <span class="step-tag">题目条件</span>
+      <h2>两店条件与需求</h2>
+      <div class="req"><span class="rl">需求</span><span>至少 <strong class="num">5 升</strong>（= 5000 毫升）</span></div>
+      <div class="store-grid" data-grid="">
+        <article class="store jia">
+          <h3><span class="dot"></span>甲店</h3>
+          <p class="price num">6.35<small>元 / 盒</small></p>
+          <p class="promo">优惠：<strong>买四送一</strong>——付 4 盒的钱，得 5 盒</p>
+        </article>
+        <article class="store yi">
+          <h3><span class="dot"></span>乙店</h3>
+          <p class="price num">7.30<small>元 / 盒</small></p>
+          <p class="promo">优惠：<strong>每满 4 盒减 6 元</strong></p>
+        </article>
+      </div>
+      <p class="note">两店每盒容量不同（题目以毫升给出），要先和 5 升换算，才能定出各自要买几盒——见第 1 步。</p>
+    </section>
+
+    <section class="card">
+      <span class="step-tag">第 1 步 · 定盒数</span>
+      <h2>进一，不是去尾</h2>
+      <p>乙店 5 ÷ 0.3 = <strong class="num">16.666… 盒</strong>。小数盒买不到；16 盒只有 4.8 升，不够 5 升。</p>
+      <p style="margin-top:8px">问的是“<strong>至少</strong>需要 5 升”，所以要进一：<strong class="num">买 17 盒</strong>（5.1 升）。甲店换算后恰为整数，买 20 盒。</p>
+
+      <figure class="fig" data-visual-id="round-up-demo" data-visual-title="乙买几盒才够 5 升" data-visual-type="交互原型" data-visual-relation="乙每盒约0.3升（由5÷16.666…推算）：16盒不足5升，16.666…盒买不到，须进一买17盒" data-visual-source="你可能买16.6666吗？不可能……至少需要5L……应该买17盒">
+        <figcaption>试试买几盒才够 5 升（乙店每盒 0.3 升）</figcaption>
+        <div class="demo-controls">
+          <div class="stepper">
+            <button type="button" id="btnMinus" aria-label="减少一盒">−</button>
+            <span class="count" id="boxCount">16 盒</span>
+            <button type="button" id="btnPlus" aria-label="增加一盒">＋</button>
+          </div>
+          <div class="presets">
+            <button type="button" class="chip active" data-preset="16" aria-pressed="true">16 盒</button>
+            <button type="button" class="chip" data-preset="16.666" aria-pressed="false">16.666… 盒</button>
+            <button type="button" class="chip" data-preset="17" aria-pressed="false">17 盒</button>
+          </div>
+        </div>
+        <div class="scalewrap">
+          <span class="thr-label">需 5 升</span>
+          <div class="scale" role="img" aria-label="已买体积与 5 升需求线对比">
+            <div class="fill lack" id="fillBar" style="width: 88.8889%;"></div>
+            <div class="frac" id="fracBar" style="display: none;"></div>
+            <div class="thr"></div>
+          </div>
+          <div class="ticks" aria-hidden="true">
+            <span class="t0" style="left:0">0</span>
+            <span style="left:18.52%">1</span>
+            <span style="left:37.04%">2</span>
+            <span style="left:55.56%">3</span>
+            <span style="left:74.07%">4</span>
+            <span style="left:92.59%">5 升</span>
+          </div>
+        </div>
+        <p class="verdict lack num" id="verdict" aria-live="polite">4.8 升——不够，还差 0.2 升。</p>
+        <p class="demo-hint num">乙店每盒 0.3 升（300 毫升，由 5 ÷ 16.666… 推算）· 5 ÷ 0.3 = 16.666…（循环小数）</p>
+      </figure>
+
+      <p class="insight">进一还是去尾，看问法：问“<strong>至少需要</strong>”就进一。除出的 16.666… 只是理论盒数，实际只能买整数盒。</p>
+    </section>
+
+    <section class="card">
+      <span class="step-tag">第 2 步 · 算总价</span>
+      <h2>套优惠，算总价</h2>
+      <p class="calc-intro">盒数定了，把两家各自的优惠算成实付金额。</p>
+      <div class="calc-grid" data-grid="">
+
+        <article class="calc jia">
+          <h3><span class="dot"></span>甲店 · 买四送一</h3>
+          <p class="promo-line num">20 盒 ÷ 每组 5 盒 = 4 组，每组只付 4 盒的钱</p>
+          <figure class="fig plain" data-visual-id="jia-groups" data-visual-title="甲店买四送一：4 组付 16 盒得 20 盒" data-visual-type="示意图" data-visual-relation="20÷(4+1)=4组，每组付4盒钱得5盒；总价4×6.35×4=101.6元" data-visual-source="20÷4+1=4，那这个4是4组……4×6.35×4……101.6">
+            <figcaption>买四送一：4 组，每组 4 盒付费 + 1 盒赠送</figcaption>
+            <div class="groups" data-grid="">
+              <div class="grp"><span class="gname">第 1 组</span><div class="boxes"><span class="bx paid"></span><span class="bx paid"></span><span class="bx paid"></span><span class="bx paid"></span><span class="bx free">送</span></div><span class="pay">付 25.4 元</span></div>
+              <div class="grp"><span class="gname">第 2 组</span><div class="boxes"><span class="bx paid"></span><span class="bx paid"></span><span class="bx paid"></span><span class="bx paid"></span><span class="bx free">送</span></div><span class="pay">付 25.4 元</span></div>
+              <div class="grp"><span class="gname">第 3 组</span><div class="boxes"><span class="bx paid"></span><span class="bx paid"></span><span class="bx paid"></span><span class="bx paid"></span><span class="bx free">送</span></div><span class="pay">付 25.4 元</span></div>
+              <div class="grp"><span class="gname">第 3 组后</span><div class="boxes"><span class="bx paid"></span><span class="bx paid"></span><span class="bx paid"></span><span class="bx paid"></span><span class="bx free">送</span></div><span class="pay">付 25.4 元</span></div>
+            </div>
+            <p class="fig-note num">共付 16 盒的钱，得 20 盒（含送 4 盒）。</p>
+          </figure>
+          <p class="formula num">20 ÷ (4＋1) = 4 组 · 4 × 6.35 × 4 = <strong>101.6 元</strong><br>（都是乘法，先算 6.35×4 也一样）</p>
+        </article>
+
+        <article class="calc yi">
+          <h3><span class="dot"></span>乙店 · 每满 4 盒减 6 元</h3>
+          <p class="promo-line num">17 盒 ÷ 4 = 4.25，只凑满 4 次，减 4 × 6 = 24 元</p>
+          <figure class="fig plain" data-visual-id="yi-brackets" data-visual-title="乙店每满4盒减6元：17盒只减4次" data-visual-type="示意图" data-visual-relation="17÷4=4.25，满4组各减6元共24元；7.30×17−24=100.1元" data-visual-source="17÷4=4.25……可以减24元……7.30×17-24……100.1元">
+            <figcaption>每满 4 盒减一次：17 盒凑满 4 组，剩 1 盒不再减</figcaption>
+            <div class="brk">
+              <div class="bclu"><div class="brow"><span class="yb"></span><span class="yb"></span><span class="yb"></span><span class="yb"></span></div><span class="btag">−6 元</span></div>
+              <div class="bclu"><div class="brow"><span class="yb"></span><span class="yb"></span><span class="yb"></span><span class="yb"></span></div><span class="btag">−6 元</span></div>
+              <div class="bclu"><div class="brow"><span class="yb"></span><span class="yb"></span><span class="yb"></span><span class="yb"></span></div><span class="btag">−6 元</span></div>
+              <div class="bclu"><div class="brow"><span class="yb"></span><span class="yb"></span><span class="yb"></span><span class="yb"></span></div><span class="btag">−6 元</span></div>
+              <div class="bclu"><div class="brow"><span class="yb rest"></span></div><span class="btag mute">第 17 盒</span></div>
+            </div>
+          </figure>
+          <p class="formula num">7.30 × 17 − 24 = 124.1 − 24 = <strong>100.1 元</strong></p>
+        </article>
+
+      </div>
+    </section>
+
+    <section class="card final">
+      <span class="step-tag">结论</span>
+      <h2>选乙店，省 1.5 元</h2>
+      <p>两家按各自的盒数都满足“至少 5 升”，所以<strong>不必再折算每升单价</strong>，直接比总价就好。</p>
+
+      <figure class="fig" data-visual-id="cost-bars" data-visual-title="两店实付总价对比" data-visual-type="条形图" data-visual-relation="甲店101.6元、乙店100.1元，相差1.5元，选乙店" data-visual-source="一个是101.6元，一个是100.1元……所以我们得选乙家">
+        <figcaption>两店实付总价对比</figcaption>
+        <div class="bars">
+          <div class="bar-row" data-grid="">
+            <span class="bar-label jia">甲店</span>
+            <div class="bar-track"><div class="bar jia num" style="width:92.36%"></div></div>
+            <span class="bar-val num">101.6 元</span>
+          </div>
+          <div class="bar-row" data-grid="">
+            <span class="bar-label yi">乙店</span>
+            <div class="bar-track"><div class="bar yi num" style="width:91%"></div></div>
+            <span class="bar-val num">100.1 元<span class="badge">更便宜</span></span>
+          </div>
+        </div>
+        <p class="fig-note num">条长按金额等比绘制（满刻度 110 元）——两店差距在图上很小，实际也确实只差一点。</p>
+      </figure>
+
+      <div class="warn num">差价只有 1.5 元：任何一步算错，结论都可能反转——这道题必须步步算准。</div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  var PER = 0.3, MAXL = 5.4;
+  var mode = 'int', count = 16;
+  var fill = document.getElementById('fillBar');
+  var frac = document.getElementById('fracBar');
+  var countEl = document.getElementById('boxCount');
+  var verdict = document.getElementById('verdict');
+  var minus = document.getElementById('btnMinus');
+  var plus = document.getElementById('btnPlus');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+
+  function pct(l){ return (l / MAXL * 100) + '%'; }
+
+  function render(){
+    chips.forEach(function(c){
+      var p = c.getAttribute('data-preset');
+      var on = (p === '16.666') ? (mode === 'frac') : (mode === 'int' && parseFloat(p) === count);
+      c.classList.toggle('active', on);
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    if(mode === 'frac'){
+      countEl.textContent = '16.666… 盒';
+      fill.style.width = pct(4.8);
+      fill.className = 'fill ok';
+      frac.style.display = 'block';
+      verdict.className = 'verdict mid num';
+      verdict.textContent = '16.666… 盒恰好 = 5.0 升，但 0.666… 盒买不到。';
+    } else {
+      frac.style.display = 'none';
+      countEl.textContent = count + ' 盒';
+      var vol = count * PER;
+      fill.style.width = pct(Math.min(vol, MAXL));
+      if(count < 17){
+        fill.className = 'fill lack';
+        verdict.className = 'verdict lack num';
+        verdict.textContent = vol.toFixed(1) + ' 升——不够，还差 ' + (5 - vol).toFixed(1) + ' 升。';
+      } else {
+        fill.className = 'fill ok';
+        verdict.className = 'verdict ok num';
+        verdict.textContent = vol.toFixed(1) + ' 升——够了，比需求多 ' + (vol - 5).toFixed(1) + ' 升。';
+      }
+    }
+  }
+
+  minus.addEventListener('click', function(){
+    if(mode === 'frac'){ mode = 'int'; count = 16; }
+    else { count = Math.max(14, count - 1); }
+    render();
+  });
+  plus.addEventListener('click', function(){
+    if(mode === 'frac'){ mode = 'int'; count = 17; }
+    else { count = Math.min(18, count + 1); }
+    render();
+  });
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){
+      var p = c.getAttribute('data-preset');
+      if(p === '16.666'){ mode = 'frac'; }
+      else { mode = 'int'; count = parseInt(p, 10); }
+      render();
+    });
+  });
+  render();
+})();
+</script>
+
+<template id="share-cover"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="#F2F6F8"></rect><rect x="32" y="32" width="448" height="448" rx="48" fill="#FFFFFF"></rect><rect x="112" y="368" width="288" height="10" rx="5" fill="#17232E"></rect><rect x="140" y="160" width="100" height="208" rx="14" fill="#2E6BE6"></rect><rect x="272" y="188" width="100" height="180" rx="14" fill="#0B9186"></rect><circle cx="322" cy="150" r="34" fill="#0B9186"></circle><path d="M306 150l11 11 21-22" stroke="#FFFFFF" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></template>
+
+</body></html>
