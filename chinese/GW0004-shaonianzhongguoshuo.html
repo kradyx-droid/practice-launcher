@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GW0004 · 少年中国说（节选）｜古诗文回收卡</title>
+<style>
+:root{color-scheme:light;--paper:#fff;--bg:#f8fafb;--text:#253240;--muted:#768491;--line:#e5e9ec;--covered:#e4e9ed;--uncovered:#f2f4f6;--marked:#f9eade;--marked-text:#b66a46;--focus:#6287a1}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:20px 280px;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button,input,select{font:inherit}button{cursor:pointer}main{width:100%;margin:0 auto}.sheet{width:100%;height:calc(100dvh - 40px);min-height:0;display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:17px;padding:20px;overflow:hidden}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.title-area{min-width:0}.eyebrow{font-size:11px;color:var(--muted);letter-spacing:.11em;margin:0 0 4px}h1{font-size:26px;letter-spacing:.035em;line-height:1.4;font-weight:650;margin:0}.small-title{font-size:14px;color:var(--muted);font-weight:400}.head-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}.reset{background:#fff;border:1px solid var(--line);border-radius:7px;min-height:35px;padding:6px 10px;font-size:12px;color:var(--muted)}.levels{display:flex;padding:2px;gap:2px;border:1px solid var(--line);border-radius:8px;align-items:center}.level{font-size:13px;font-weight:650;color:var(--muted);border:0;background:transparent;border-radius:5px;padding:5px 10px;min-height:30px;min-width:36px}.level[aria-pressed=true]{background:var(--covered);color:var(--text)}
+.meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:13px;font-size:15px;line-height:2}.meta-label{color:var(--muted)}.mask{border:0;background:none;padding:0;color:inherit;text-align:left;line-height:inherit;letter-spacing:inherit;vertical-align:baseline;cursor:pointer}.mask .ink{color:transparent;background:var(--covered);padding:3px 5px;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}.mask[data-state="1"] .ink{color:var(--text);background:var(--uncovered)}.mask[data-state="2"] .ink{color:var(--marked-text);background:var(--marked);font-weight:650}.mask:focus-visible,.view:focus-visible,.level:focus-visible,.reset:focus-visible,.copy:focus-visible,.comment:focus-visible,.mode:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.scroll-area{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:2px}
+.nav{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:5px;margin-top:10px;background:var(--paper);padding:9px 0 11px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:thin}.view{font-size:14px;font-weight:600;color:var(--muted);background:transparent;border:0;border-radius:8px;white-space:nowrap;min-height:40px;padding:9px 13px}.view[aria-selected="true"]{background:var(--covered);color:var(--text)}.view .count{font-weight:400;margin-left:4px;font-size:11px;color:var(--muted)}
+.panel{padding-top:22px;padding-bottom:24px;min-width:0}.panel[hidden]{display:none}.helper{font-size:13px;color:var(--muted);line-height:1.85;margin:0 0 23px}.group{padding-bottom:26px}.group+.group{border-top:1px solid var(--line);padding-top:24px}.group h2{margin:0 0 16px;font-size:15px;color:#5d7183;letter-spacing:.02em;font-weight:650}.group-number{font-size:12px;color:#96a1aa;margin-left:7px;font-weight:400}
+.verse-list{display:flex;flex-direction:column;gap:2px}.verse-line{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:12px;align-items:baseline;padding:4px 0}.line-number{font-size:12px;color:#acb6be;line-height:2.25;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;text-align:right}.verse-text{font-family:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;font-size:clamp(20px,2.3vw,27px);line-height:2.05;overflow-wrap:anywhere;word-break:normal}.verse-text .mask{font:inherit;white-space:normal}.verse-text .mask .ink{padding:4px 1px;background:var(--covered);border-radius:3px}.verse-text .mask[data-state="1"] .ink{background:var(--uncovered)}.verse-text .mask[data-state="2"] .ink{background:var(--marked)}.plain-punc{white-space:pre-wrap}.poem-subtle{color:var(--muted);font-size:12px;padding:13px 0 1px 42px}
+.notes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 22px}.note-card,.meaning-card,.link-card{min-width:0;border-radius:9px;border:1px solid var(--line);padding:13px 15px;background:#fff}.note-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px}.note-term{font-size:16px;font-weight:650}.note-source{font-size:11px;color:#9aa6af}.note-answer,.meaning-answer,.link-answer{font-size:15px;line-height:2;overflow-wrap:anywhere}.note-answer .mask,.meaning-answer .mask,.link-answer .mask{max-width:100%;white-space:normal}.note-answer .ink,.meaning-answer .ink,.link-answer .ink{padding:4px 5px;line-height:2.25}
+.meaning-list,.link-list{display:flex;flex-direction:column;gap:11px}.meaning-prompt,.link-prompt{font-family:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;font-size:19px;line-height:1.8;margin:0 0 6px}.meaning-index{font-size:12px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#94a2ae;margin-right:7px}.link-prompt{font-family:inherit;font-size:17px;font-weight:650}.link-card{padding:17px}.link-card .link-answer{margin-top:8px}.related-label{font-size:15px;font-weight:650;color:#5d7183;padding:28px 0 14px;margin-top:18px;border-top:1px solid var(--line)}.source-note{border-top:1px solid var(--line);color:#8b969f;font-size:12px;line-height:1.8;margin-top:6px;padding-top:16px}
+.footer{position:relative;bottom:auto;z-index:5;flex:none;margin-top:0;padding:15px 0 0;background:var(--paper);border-top:1px solid var(--line)}.footer-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.footer-label{font-size:13px;font-weight:650;color:var(--muted)}.status{font-size:12px;color:var(--muted);text-align:right;line-height:1.3}.footer-actions{display:flex;gap:10px;align-items:stretch}.comment{flex:1;min-width:0;border:1px solid #d9e0e5;border-radius:9px;background:white;color:var(--text);padding:12px 13px;font-size:15px;line-height:1.4;min-height:48px}.comment::placeholder{color:#abb2b9}.copy{flex-shrink:0;min-height:48px;padding:11px 20px;color:#fff;background:#171717;border:1px solid #171717;border-radius:9px;font-size:14px;font-weight:650}.copy:disabled{opacity:.6;cursor:wait}
+@media(max-width:1399px){body{padding:20px clamp(20px,8vw,140px)}}
+@media(max-width:700px){body{padding:20px}.sheet{padding:18px}.header{gap:10px;flex-wrap:wrap}h1{font-size:23px}.head-actions{margin-left:auto}.nav{margin-top:12px;padding:6px 0 8px}.view{font-size:13px;padding:8px 12px}.panel{padding-top:16px}.group{padding-bottom:20px}.group+.group{padding-top:19px}.verse-line{grid-template-columns:23px minmax(0,1fr);gap:9px}.verse-text{font-size:clamp(19px,5.1vw,23px);line-height:2.08}.notes-grid{grid-template-columns:1fr;gap:9px}.note-card,.meaning-card,.link-card{padding:12px}.meaning-prompt{font-size:18px}.footer-actions{gap:8px}.copy{padding:11px 13px}.poem-subtle{padding-left:32px}}
+@media(max-width:400px){.small-title{display:block}.comment{font-size:14px}.copy{font-size:13px;padding:8px 11px}.meta{gap:9px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+<div class="sheet" id="poem-card">
+<header class="header"><div class="title-area"><div class="eyebrow">GW0004 · 古诗文回收</div><h1>少年中国说<span class="small-title">（节选）</span></h1></div><div class="head-actions"><button class="reset" id="reset-all" type="button">↺ 重置</button><div class="levels" aria-label="原文挖空等级" role="group"><button class="level" data-level="low" aria-pressed="false">低</button><button class="level" data-level="mid" aria-pressed="false">中</button><button class="level" data-level="high" aria-pressed="true">高</button></div></div></header>
+<div class="meta"><span><span class="meta-label">作者：</span><button class="mask" data-item="author" data-state="0" aria-label="揭晓作者"><span class="ink">梁启超</span></button></span><span><span class="meta-label">时代：</span><button class="mask" data-item="era" data-state="0" aria-label="揭晓时代"><span class="ink">近代</span></button></span></div>
+<div class="scroll-area" id="scroll-area">
+<div class="nav" role="tablist" aria-label="回收内容"><button class="view" role="tab" data-view="verse" aria-selected="true">原文<span class="count">21 组</span></button><button class="view" role="tab" data-view="notes" aria-selected="false">重点注释<span class="count">22</span></button><button class="view" role="tab" data-view="meaning" aria-selected="false">句意<span class="count">21</span></button></div>
+<section class="panel" data-panel="verse" role="tabpanel"><p class="helper">默认高档，保留标点，原文按自然段排列。点遮罩揭晓，再点标记不熟练，第三次取消标记；难时可切中档或低档。复制结果按三段整理，每句只出现一次。</p><div id="verse-groups"></div></section>
+<section class="panel" data-panel="notes" role="tabpanel" hidden><p class="helper">只需要说出意思，再点击核对。标有「课本注」的内容来自教材照片，其余为教学阶段的释义整理。</p><div id="note-groups"></div><p class="source-note">字形与课文保持一致，特别是「风尘吸张」「矞矞皇皇」「有作其芒」。</p></section>
+<section class="panel" data-panel="meaning" role="tabpanel" hidden><p class="helper">按原文顺序回忆句意。可以分组核对，不必一次把全文讲完；参考表达不是唯一说法。</p><div id="meaning-groups"></div><div class="related-label">全文串联</div><div id="link-groups"></div></section>
+</div>
+<footer class="footer"><div class="footer-heading"><label class="footer-label" for="parent-comment">补充说明</label><p class="status" aria-live="polite" id="copy-status" role="status"></p></div><div class="footer-actions"><input class="comment" id="parent-comment" placeholder="例如：宝剑句意需要提醒，背诵前半段不稳" autocomplete="off" type="text"><button class="copy" type="button" id="copy-result">复制结果</button></div></footer>
+</div>
+</main>
+<script type="application/json" id="card-data">{
+  "verses": [
+    {
+      "id": "v01",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "故今日之责任，不在他人，而全在我少年。",
+      "ranges": {
+        "low": [
+          [
+            4,
+            6
+          ],
+          [
+            16,
+            18
+          ]
+        ],
+        "mid": [
+          [
+            0,
+            6
+          ],
+          [
+            12,
+            18
+          ]
+        ],
+        "high": [
+          [
+            0,
+            6
+          ],
+          [
+            7,
+            11
+          ],
+          [
+            12,
+            18
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v02",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "少年智则国智，",
+      "ranges": {
+        "low": [
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            6
+          ]
+        ],
+        "mid": [
+          [
+            4,
+            6
+          ]
+        ],
+        "high": [
+          [
+            0,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v03",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "少年富则国富，",
+      "ranges": {
+        "low": [
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            6
+          ]
+        ],
+        "mid": [
+          [
+            4,
+            6
+          ]
+        ],
+        "high": [
+          [
+            0,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v04",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "少年强则国强，",
+      "ranges": {
+        "low": [
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            6
+          ]
+        ],
+        "mid": [
+          [
+            4,
+            6
+          ]
+        ],
+        "high": [
+          [
+            0,
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v05",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "少年独立则国独立，",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            5,
+            8
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            8
+          ]
+        ],
+        "high": [
+          [
+            0,
+            8
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v06",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "少年自由则国自由，",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            5,
+            8
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            8
+          ]
+        ],
+        "high": [
+          [
+            0,
+            8
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v07",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "少年进步则国进步，",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            5,
+            8
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            8
+          ]
+        ],
+        "high": [
+          [
+            0,
+            8
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v08",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "少年胜于欧洲则国胜于欧洲，",
+      "ranges": {
+        "low": [
+          [
+            2,
+            6
+          ],
+          [
+            7,
+            12
+          ]
+        ],
+        "mid": [
+          [
+            7,
+            12
+          ]
+        ],
+        "high": [
+          [
+            0,
+            12
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v09",
+      "section": "第一自然段｜责任与国家未来",
+      "text": "少年雄于地球则国雄于地球。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            6
+          ],
+          [
+            7,
+            12
+          ]
+        ],
+        "mid": [
+          [
+            7,
+            12
+          ]
+        ],
+        "high": [
+          [
+            0,
+            12
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v10",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "红日初升，其道大光。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            7,
+            9
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v11",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "河出伏流，一泻汪洋。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            7,
+            9
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v12",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "潜龙腾渊，鳞爪飞扬。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            5,
+            7
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v13",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "乳虎啸谷，百兽震惶。",
+      "ranges": {
+        "low": [
+          [
+            0,
+            2
+          ],
+          [
+            7,
+            9
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v14",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "鹰隼试翼，风尘吸张。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            7,
+            9
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v15",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "奇花初胎，矞矞皇皇。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v16",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "干将发硎，有作其芒。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            7,
+            9
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v17",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "天戴其苍，地履其黄。",
+      "ranges": {
+        "low": [
+          [
+            1,
+            2
+          ],
+          [
+            6,
+            7
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v18",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "纵有千古，横有八荒。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            7,
+            9
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v19",
+      "section": "第二自然段｜从形象到辽阔前途",
+      "text": "前途似海，来日方长。",
+      "ranges": {
+        "low": [
+          [
+            2,
+            4
+          ],
+          [
+            7,
+            9
+          ]
+        ],
+        "mid": [
+          [
+            5,
+            9
+          ]
+        ],
+        "high": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v20",
+      "section": "第三自然段｜双重赞美",
+      "text": "美哉，我少年中国，与天不老！",
+      "ranges": {
+        "low": [
+          [
+            4,
+            8
+          ],
+          [
+            9,
+            13
+          ]
+        ],
+        "mid": [
+          [
+            0,
+            2
+          ],
+          [
+            9,
+            13
+          ]
+        ],
+        "high": [
+          [
+            0,
+            2
+          ],
+          [
+            3,
+            8
+          ],
+          [
+            9,
+            13
+          ]
+        ]
+      }
+    },
+    {
+      "id": "v21",
+      "section": "第三自然段｜双重赞美",
+      "text": "壮哉，我中国少年，与国无疆！",
+      "ranges": {
+        "low": [
+          [
+            4,
+            8
+          ],
+          [
+            9,
+            13
+          ]
+        ],
+        "mid": [
+          [
+            0,
+            2
+          ],
+          [
+            9,
+            13
+          ]
+        ],
+        "high": [
+          [
+            0,
+            2
+          ],
+          [
+            3,
+            8
+          ],
+          [
+            9,
+            13
+          ]
+        ]
+      }
+    }
+  ],
+  "notes": [
+    {
+      "title": "第一自然段｜必要字词",
+      "items": [
+        {
+          "id": "n01",
+          "term": "故",
+          "answer": "所以，承接原作前文。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n02",
+          "term": "今日之责任",
+          "answer": "当时改变国家前途的重任；“之”相当于“的”。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n03",
+          "term": "我少年",
+          "answer": "我们少年这一代人，不是“少年时候的我”。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n04",
+          "term": "则",
+          "answer": "在这些句子里可理解为“就”，连接少年一代与国家的前途。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n05",
+          "term": "胜于欧洲／雄于地球",
+          "answer": "梁启超所处时代对未来中国的激昂期望，不是现实排名。",
+          "source": "教研整理"
+        }
+      ]
+    },
+    {
+      "title": "第二自然段｜红日、河流、龙、虎",
+      "items": [
+        {
+          "id": "n06",
+          "term": "初升／其道大光",
+          "answer": "太阳刚升起；前路充满光明。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n07",
+          "term": "伏流／一泻汪洋",
+          "answer": "潜藏的水流奔涌而出，水势浩大。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n08",
+          "term": "潜龙腾渊",
+          "answer": "潜藏的龙从深水处腾跃而起；“潜”读 qián，“渊”读 yuān。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n09",
+          "term": "乳虎／震惶",
+          "answer": "幼虎在山谷长啸，使百兽震动、惊惶；“惶”读 huáng。",
+          "source": "教研整理"
+        }
+      ]
+    },
+    {
+      "title": "第二自然段｜鹰隼、奇花、宝剑",
+      "items": [
+        {
+          "id": "n10",
+          "term": "鹰隼试翼，风尘吸张",
+          "answer": "鹰隼展翅试飞，掀起狂风，飞沙走石。隼：一种凶猛的鸟，读 sǔn。",
+          "source": "课本注②"
+        },
+        {
+          "id": "n11",
+          "term": "奇花初胎",
+          "answer": "奇花刚开始孕育、显出新生的光彩；“胎”读 tāi。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n12",
+          "term": "矞矞皇皇",
+          "answer": "华美瑰丽，富丽堂皇；“矞”读 yù。",
+          "source": "课本注③"
+        },
+        {
+          "id": "n13",
+          "term": "干将发硎，有作其芒",
+          "answer": "宝剑在磨刀石上磨出来，发出耀眼光芒。干将：古代宝剑名；硎：磨刀石，读 xíng。",
+          "source": "课本注④"
+        }
+      ]
+    },
+    {
+      "title": "第二自然段｜天地、时间与未来",
+      "items": [
+        {
+          "id": "n14",
+          "term": "天戴其苍，地履其黄",
+          "answer": "头顶着苍天，脚踏着黄土大地；“履”读 lǚ。",
+          "source": "课本注⑤"
+        },
+        {
+          "id": "n15",
+          "term": "千古",
+          "answer": "漫长的历史时间。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n16",
+          "term": "八荒",
+          "answer": "东、南、西、北、东南、东北、西南、西北八个方向极远的地方。",
+          "source": "课本注⑥"
+        },
+        {
+          "id": "n17",
+          "term": "纵有千古，横有八荒",
+          "answer": "从时间和空间两方面展开辽阔的气象。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n18",
+          "term": "前途似海，来日方长",
+          "answer": "未来像大海一样辽阔，还有很长的发展时间。",
+          "source": "教研整理"
+        }
+      ]
+    },
+    {
+      "title": "结尾｜赞美与呼应",
+      "items": [
+        {
+          "id": "n19",
+          "term": "哉",
+          "answer": "表示赞叹，相当于“啊”；读 zāi。",
+          "source": "课本注⑦"
+        },
+        {
+          "id": "n20",
+          "term": "少年中国",
+          "answer": "梁启超期待的、充满新生力量与希望的中国。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n21",
+          "term": "中国少年",
+          "answer": "担负未来责任、能够创造国家未来的少年一代。",
+          "source": "教研整理"
+        },
+        {
+          "id": "n22",
+          "term": "与天不老／与国无疆",
+          "answer": "两句表达长远祝愿和热烈赞美，不是字面上永不变老或国土无限扩大。",
+          "source": "教研整理"
+        }
+      ]
+    }
+  ],
+  "meanings": [
+    {
+      "title": "第一自然段｜责任与理由",
+      "items": [
+        {
+          "id": "m01",
+          "prompt": "故今日之责任，不在他人，而全在我少年。",
+          "answer": "所以，今天关系国家前途的重任，不应只寄托于别人，而要特别寄托在我们少年一代身上。"
+        },
+        {
+          "id": "m02",
+          "prompt": "少年智则国智",
+          "answer": "少年一代有智慧，国家的未来就更有希望变得明智。"
+        },
+        {
+          "id": "m03",
+          "prompt": "少年富则国富",
+          "answer": "少年一代富足、能够创造财富，国家的未来也更有希望富足。"
+        },
+        {
+          "id": "m04",
+          "prompt": "少年强则国强",
+          "answer": "少年一代强盛，国家的未来也会更强盛。"
+        },
+        {
+          "id": "m05",
+          "prompt": "少年独立则国独立",
+          "answer": "少年一代能够独立自主，国家的未来才有独立自主的希望。"
+        },
+        {
+          "id": "m06",
+          "prompt": "少年自由则国自由",
+          "answer": "少年一代追求自由，国家未来也会有自由发展的希望。"
+        },
+        {
+          "id": "m07",
+          "prompt": "少年进步则国进步",
+          "answer": "少年一代不断进步，国家的未来也能向前发展。"
+        },
+        {
+          "id": "m08",
+          "prompt": "少年胜于欧洲则国胜于欧洲",
+          "answer": "作者希望少年一代奋发有为，使中国未来有能力赶超当时的欧洲强国。"
+        },
+        {
+          "id": "m09",
+          "prompt": "少年雄于地球则国雄于地球",
+          "answer": "作者期待少年一代雄健奋发，使中国未来在世界上强盛自立。"
+        }
+      ]
+    },
+    {
+      "title": "第二自然段｜形象与前途",
+      "items": [
+        {
+          "id": "m10",
+          "prompt": "红日初升，其道大光",
+          "answer": "太阳刚刚升起，前方闪耀着灿烂光明。"
+        },
+        {
+          "id": "m11",
+          "prompt": "河出伏流，一泻汪洋",
+          "answer": "潜藏的河水奔涌而出，形成浩大壮阔的水势。"
+        },
+        {
+          "id": "m12",
+          "prompt": "潜龙腾渊，鳞爪飞扬",
+          "answer": "深处潜藏的龙腾跃而起，鳞片与爪子飞扬，展露力量。"
+        },
+        {
+          "id": "m13",
+          "prompt": "乳虎啸谷，百兽震惶",
+          "answer": "幼虎在山谷中长啸，百兽都受到震动、惊惶不安。"
+        },
+        {
+          "id": "m14",
+          "prompt": "鹰隼试翼，风尘吸张",
+          "answer": "鹰隼刚展翅试飞，就掀起狂风、带动飞沙走石。"
+        },
+        {
+          "id": "m15",
+          "prompt": "奇花初胎，矞矞皇皇",
+          "answer": "奇异的花刚开始孕育，就显出华美瑰丽的光彩。"
+        },
+        {
+          "id": "m16",
+          "prompt": "干将发硎，有作其芒",
+          "answer": "宝剑刚经磨砺，就发出耀眼的锋芒。"
+        },
+        {
+          "id": "m17",
+          "prompt": "天戴其苍，地履其黄",
+          "answer": "头顶苍天，脚踏黄土地，气象宽广宏大。"
+        },
+        {
+          "id": "m18",
+          "prompt": "纵有千古，横有八荒",
+          "answer": "从悠远的历史时间到四方辽阔的空间，境界都十分广远。"
+        },
+        {
+          "id": "m19",
+          "prompt": "前途似海，来日方长",
+          "answer": "少年中国的前途像海一样辽阔，未来还有很长的时间可以开拓。"
+        }
+      ]
+    },
+    {
+      "title": "第三自然段｜双重赞美",
+      "items": [
+        {
+          "id": "m20",
+          "prompt": "美哉，我少年中国，与天不老",
+          "answer": "多么美好的少年中国啊！愿它像苍天一样长久充满生机。"
+        },
+        {
+          "id": "m21",
+          "prompt": "壮哉，我中国少年，与国无疆",
+          "answer": "多么雄壮的中国少年啊！愿他们与国家的前途一起向远方延伸。"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "l1",
+      "prompt": "开头：提出主张",
+      "answer": "作者把改变国家未来的重任特别寄托于少年一代。"
+    },
+    {
+      "id": "l2",
+      "prompt": "接着：说明理由",
+      "answer": "反复写“少年……则国……”，说明少年一代的成长和国家未来紧密相连。"
+    },
+    {
+      "id": "l3",
+      "prompt": "中间：描绘未来",
+      "answer": "红日、河流、潜龙、乳虎、鹰隼、奇花、宝剑等具体画面，让一个有生机、有力量的少年中国变得可见；随后视野扩展到天地、时间和未来。"
+    },
+    {
+      "id": "l4",
+      "prompt": "结尾：回扣少年",
+      "answer": "既赞美充满希望的“少年中国”，也赞美能够创造未来的“中国少年”，与开头的责任主张呼应。"
+    }
+  ]
+}</script>
+<script>
+(()=>{
+'use strict';
+const data=JSON.parse(document.getElementById('card-data').textContent);
+const card=document.getElementById('poem-card'), comment=document.getElementById('parent-comment'),status=document.getElementById('copy-status'),copyBtn=document.getElementById('copy-result');
+const STORAGE='GW0004-shaonianzhongguoshuo-recall-v1';
+let level='high',activePanel='verse',states={};
+const labels={author:'作者',era:'时代'};
+function el(tag,cls,txt){const x=document.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x;}
+function mask(text,id,desc,kind){const b=el('button','mask');b.type='button';b.dataset.item=id;b.dataset.state=String(states[id]||0);b.dataset.desc=desc;b.dataset.kind=kind||'misc';b.setAttribute('aria-label','揭晓：'+desc);b.appendChild(el('span','ink',text));return b;}
+function decorate(parent,text,ranges,id,desc){let p=0;for(let i=0;i<ranges.length;i++){const [s,e]=ranges[i];if(s>p)parent.appendChild(el('span','plain-punc',text.slice(p,s)));const k=`${id}-${level}-${i}`;parent.appendChild(mask(text.slice(s,e),k,`${desc}｜${text.slice(s,e)}`,'verse'));p=e;}if(p<text.length)parent.appendChild(el('span','plain-punc',text.slice(p)));}
+function group(container,title,index){const g=el('section','group');const h=el('h2','',title);h.appendChild(el('span','group-number',index));g.appendChild(h);container.appendChild(g);return g;}
+function syncMeta(){card.querySelectorAll('.meta .mask').forEach(b=>b.dataset.state=String(states[b.dataset.item]||0));}
+function buildVerses(){const root=document.getElementById('verse-groups');root.replaceChildren();let current='',block=null,count=0;for(const v of data.verses){if(v.section!==current){current=v.section;count=0;block=group(root,current,'');block.appendChild(el('div','verse-list'));}count++;const row=el('div','verse-line');row.appendChild(el('span','line-number',String(count).padStart(2,'0')));const words=el('div','verse-text');decorate(words,v.text,v.ranges[level],v.id,v.text);row.appendChild(words);block.lastElementChild.appendChild(row);}card.querySelectorAll('.level').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.level===level)));}
+function buildNotes(){const root=document.getElementById('note-groups');root.replaceChildren();for(const section of data.notes){const g=group(root,section.title,`${section.items.length} 项`);const grid=el('div','notes-grid');for(const item of section.items){const cardN=el('div','note-card');const head=el('div','note-head');head.appendChild(el('span','note-term',item.term));head.appendChild(el('span','note-source',item.source==='教研整理'?'':item.source));cardN.appendChild(head);const answer=el('div','note-answer');answer.appendChild(mask(item.answer,item.id,`注释·${item.term}`,'note'));cardN.appendChild(answer);grid.appendChild(cardN);}g.appendChild(grid);}}
+function buildMeanings(){const root=document.getElementById('meaning-groups');root.replaceChildren();let i=0;for(const section of data.meanings){const g=group(root,section.title,`${section.items.length} 组`);const box=el('div','meaning-list');for(const item of section.items){i++;const c=el('div','meaning-card');const p=el('div','meaning-prompt');p.appendChild(el('span','meaning-index',String(i).padStart(2,'0')));p.appendChild(document.createTextNode(item.prompt));const a=el('div','meaning-answer');a.appendChild(mask(item.answer,item.id,`句意·${item.prompt}`,'meaning'));c.append(p,a);box.appendChild(c);}g.appendChild(box);}}
+function buildLinks(){const root=document.getElementById('link-groups');root.replaceChildren();const box=el('div','link-list');for(const item of data.links){const c=el('div','link-card');c.appendChild(el('div','link-prompt',item.prompt));const a=el('div','link-answer');a.appendChild(mask(item.answer,item.id,`全文联系·${item.prompt}`,'link'));c.appendChild(a);box.appendChild(c);}root.appendChild(box);}
+function setPanel(name,noScroll=false){activePanel=name;card.querySelectorAll('[data-panel]').forEach(p=>p.hidden=p.dataset.panel!==name);card.querySelectorAll('.view').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.view===name)));if(!noScroll){const scroller=document.getElementById('scroll-area');scroller.scrollTop=0;}}
+function save(){try{localStorage.setItem(STORAGE,JSON.stringify({states,comment:comment.value,activePanel,editedAt:new Date().toISOString()}));}catch(e){/* offline/private mode */}}
+function restore(){try{const v=JSON.parse(localStorage.getItem(STORAGE)||'null');if(v&&v.states&&typeof v.states==='object'){states=Object.fromEntries(Object.entries(v.states).filter(([k,x])=>[0,1,2].includes(Number(x))).map(([k,x])=>[k,Number(x)]));}if(v&&typeof v.comment==='string')comment.value=v.comment;if(v&&['verse','notes','meaning'].includes(v.activePanel))activePanel=v.activePanel;else if(v?.activePanel==='links')activePanel='meaning';}catch(e){}level='high';}
+function reset(){states={};comment.value='';level='high';status.textContent='';buildVerses();buildNotes();buildMeanings();buildLinks();syncMeta();save();}
+function dateNow(){const d=new Date(),two=x=>String(x).padStart(2,'0');return `${d.getFullYear()}-${two(d.getMonth()+1)}-${two(d.getDate())} ${two(d.getHours())}:${two(d.getMinutes())}`;}
+function verseModeStatus(v,mode){
+  const marks=v.ranges[mode].map(([a,b],i)=>({text:v.text.slice(a,b),state:Number(states[`${v.id}-${mode}-${i}`]||0)}));
+  const revealed=marks.filter(m=>m.state>0),weak=marks.filter(m=>m.state===2).map(m=>m.text);
+  if(!revealed.length)return {t:'未揭晓',touched:false};
+  let t=revealed.length===marks.length?'已揭晓':`部分揭晓（${revealed.length}/${marks.length}处）`;
+  if(weak.length)t+=`；不熟练：${[...new Set(weak)].join('、')}`;
+  return {t,touched:true};
+}
+function result(){
+  const modes={low:'低',mid:'中',high:'高'};
+  const a=[`古诗文回收卡｜GW0004｜少年中国说（节选）`,`记录时间：${dateNow()}`,`原文挖空档：${modes[level]}`];
+  a.push('',`【原文背诵】`);
+  let lastSection='';
+  for(const v of data.verses){
+    
+    if(v.section!==lastSection){lastSection=v.section;a.push('',`〔${v.section}〕`);}
+    const main=verseModeStatus(v,level);
+    const extras=[];
+    for(const mode of ['high','mid','low']){if(mode===level)continue;const x=verseModeStatus(v,mode);if(x.touched)extras.push(`${modes[mode]}档${x.t}`);}
+    a.push(`${v.text}（${[main.t,...extras].join('；')}）`);
+  }
+  const entries=(items,label,prompt)=>{let rows=[];let last='';for(const section of items){for(const item of section.items){const s=Number(states[item.id]||0);if(!s)continue;if(last!==section.title){rows.push(`〔${section.title}〕`);last=section.title;}rows.push(`${prompt(item)}（${s===2?'不熟练':'已揭晓'}）`);}}if(rows.length)a.push('',`【${label}】`,...rows);return rows.length>0;};
+  entries(data.notes,'重点注释',item=>item.term);
+  const anyMeaning=entries(data.meanings,'句意理解',item=>item.prompt);
+  const rel=data.links.filter(item=>Number(states[item.id]||0)>0);
+  if(rel.length){if(!anyMeaning)a.push('','【句意理解】');a.push('〔全文串联〕',...rel.map(item=>`${item.prompt}（${Number(states[item.id])===2?'不熟练':'已揭晓'}）`));}
+  const basic=['author','era'].filter(id=>Number(states[id]||0)>0);if(basic.length)a.push('',`【基本信息】`,...basic.map(id=>`${labels[id]}（${Number(states[id])===2?'不熟练':'已揭晓'}）`));
+  if(comment.value.trim())a.push('',`家长补充说明：${comment.value.trim()}`);
+  return a.join('\n');
+}
+async function clipboard(s){if(navigator.clipboard&&navigator.clipboard.writeText){try{await navigator.clipboard.writeText(s);return true;}catch(e){}}const x=el('textarea');x.value=s;x.style.cssText='position:fixed;left:-9999px;opacity:0';document.body.appendChild(x);x.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}x.remove();return ok;}
+card.addEventListener('click',event=>{const b=event.target.closest('button');if(!b||!card.contains(b))return;if(b.id==='reset-all'){reset();return;}if(b.dataset.view){setPanel(b.dataset.view);save();status.textContent='';return;}if(b.dataset.level){level=b.dataset.level;buildVerses();save();status.textContent='';return;}if(b.classList.contains('mask')){const id=b.dataset.item;const old=Number(states[id]||0);const next=old===0?1:old===1?2:1;states[id]=next;b.dataset.state=String(next);status.textContent='';save();}});
+comment.addEventListener('input',save);
+copyBtn.addEventListener('click',async()=>{copyBtn.disabled=true;const ok=await clipboard(result());copyBtn.disabled=false;status.textContent=ok?'✓ 已复制，可粘贴给回收小助手':'复制失败，请检查剪贴板权限';});
+restore();buildVerses();buildNotes();buildMeanings();buildLinks();syncMeta();setPanel(activePanel,true);
+})();
+</script>
+</body>
+</html>
