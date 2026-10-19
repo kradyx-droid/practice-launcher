@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-recap-state="ok"><head><script>(function () {
+  var RESIZE = 'voice-recorder:resize';
+  var MEASURE = 'voice-recorder:measure';
+  var STATE_ATTRIBUTE = 'data-recap-state';
+  var DEFAULT_STATE = 'ok';
+  var MEASURE_FALLBACK_DELAY = 120;
+  var pending = false;
+  var pendingTimer = null;
+  var lastHeight = 0;
+  var lastBackgroundColor;
+  var raf = window.requestAnimationFrame
+    || window.webkitRequestAnimationFrame
+    || function (callback) { return setTimeout(callback, 16); };
+
+  function readState() {
+    try {
+      return document.documentElement.getAttribute(STATE_ATTRIBUTE) || DEFAULT_STATE;
+    } catch (error) {
+      return DEFAULT_STATE;
+    }
+  }
+
+  function isBlankColor(color) {
+    return !color || color === 'transparent' || /^rgba\([^)]*,\s*0\s*\)$/.test(color);
+  }
+
+  function readBackgroundColor() {
+    try {
+      var elements = [document.body, document.documentElement];
+      for (var i = 0; i < elements.length; i += 1) {
+        if (!elements[i]) continue;
+        var color = getComputedStyle(elements[i]).backgroundColor;
+        if (isBlankColor(color)) continue;
+        // 半透明色无法直接作为外层底色，交给现有主题默认色兜底。
+        if (/^rgba\(/.test(color) && !/,\s*1\s*\)$/.test(color)) return '';
+        return color;
+      }
+    } catch (error) {
+      // 取色失败不影响高度同步。
+    }
+    return '';
+  }
+
+  function measure() {
+    pending = false;
+    if (pendingTimer) {
+      clearTimeout(pendingTimer);
+      pendingTimer = null;
+    }
+    var body = document.body;
+    if (!body) return;
+    var style = getComputedStyle(body);
+    var height = Math.ceil(Math.max(body.scrollHeight, body.offsetHeight)
+      + (parseFloat(style.marginTop) || 0) + (parseFloat(style.marginBottom) || 0));
+    var backgroundColor = readBackgroundColor();
+    if (height <= 0 || (height === lastHeight && backgroundColor === lastBackgroundColor)) return;
+    lastHeight = height;
+    lastBackgroundColor = backgroundColor;
+    window.parent.postMessage({
+      type: RESIZE,
+      height: height,
+      backgroundColor: backgroundColor,
+      state: readState(),
+    }, '*');
+  }
+
+  function reportHeight() {
+    if (pending) return;
+    pending = true;
+    // rAF 在后台标签或被节流时可能长期不触发，用定时器兜底解锁，避免闩锁永久卡住。
+    pendingTimer = setTimeout(measure, MEASURE_FALLBACK_DELAY);
+    raf(measure);
+  }
+
+  window.addEventListener('message', function (event) {
+    if (event.source !== window.parent || !event.data || event.data.type !== MEASURE) return;
+    lastHeight = 0;
+    reportHeight();
+  });
+
+  function watchImages() {
+    var images = document.images || [];
+    for (var i = 0; i < images.length; i += 1) {
+      if (images[i].complete || !images[i].addEventListener) continue;
+      images[i].addEventListener('load', reportHeight);
+      images[i].addEventListener('error', reportHeight);
+    }
+  }
+
+  function observe() {
+    if (window.ResizeObserver) {
+      var sizeObserver = new ResizeObserver(reportHeight);
+      sizeObserver.observe(document.documentElement);
+      if (document.body) sizeObserver.observe(document.body);
+    }
+    if (window.MutationObserver) {
+      // 子树变化也要观察：未标注宽高的图片和异步样式都会改变正文高度。
+      new MutationObserver(reportHeight).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme'],
+        childList: true,
+        subtree: true,
+      });
+    }
+    if (window.matchMedia) {
+      var theme = window.matchMedia('(prefers-color-scheme: dark)');
+      if (theme.addEventListener) theme.addEventListener('change', reportHeight);
+      else if (theme.addListener) theme.addListener(reportHeight);
+    }
+    watchImages();
+    reportHeight();
+    if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+      document.fonts.ready.then(reportHeight);
+    }
+  }
+
+  if (document.readyState === 'loading' && document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', observe);
+  } else {
+    observe();
+  }
+  window.addEventListener('load', reportHeight);
+  window.addEventListener('resize', reportHeight);
+})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="content-status" content="substantive">
+<title>花圃摆盆：间距、段数与盆数</title>
+<meta name="artifact-kind" content="mixed">
+<style>
+:root{
+  color-scheme: light dark;
+  --page-bg:#f1f5f0;
+  --surface:#ffffff;
+  --surface-2:#eaf1ea;
+  --ink:#1e2b22;
+  --ink-2:#5b6c60;
+  --line:#d9e3da;
+  --accent:#2f7d4f;
+  --accent-strong:#1f6238;
+  --accent-soft:#e2f0e6;
+  --pot:#c05f38;
+  --bad:#b23b48;
+  --bad-soft:#f6e2e3;
+  --on-accent:#ffffff;
+  --shadow:0 1px 2px rgba(30,43,34,.04),0 10px 26px rgba(30,43,34,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --page-bg:#0d1410;
+    --surface:#16221a;
+    --surface-2:#1d2c22;
+    --ink:#e3ede5;
+    --ink-2:#9db2a3;
+    --line:#2a3a2f;
+    --accent:#7ccb9e;
+    --accent-strong:#a9e2c1;
+    --accent-soft:#1e3126;
+    --pot:#e08a5e;
+    --bad:#e68f96;
+    --bad-soft:#3a2427;
+    --on-accent:#0c1710;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 12px 30px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box;}
+html,body{background-color:var(--page-bg);}
+body{
+  margin:0;color:var(--ink);font-size:15.5px;line-height:1.7;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+}
+.wrap{max-width:820px;margin:0 auto;padding:36px clamp(16px,4.5vw,32px) 72px;}
+.kicker{font-size:12.5px;letter-spacing:.16em;font-weight:700;color:var(--accent-strong);margin-bottom:10px;}
+h1{margin:0 0 10px;font-size:clamp(25px,5.4vw,33px);line-height:1.25;letter-spacing:.01em;}
+.lede{margin:0;color:var(--ink-2);font-size:15px;max-width:58ch;}
+.task{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow);}
+.task-tag{flex:none;font-size:12px;font-weight:700;color:var(--accent-strong);background:var(--accent-soft);
+  border-radius:6px;padding:3px 9px;margin-top:3px;}
+.task p{margin:0;font-size:14.5px;}
+.module{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:16px;
+  padding:clamp(18px,3.5vw,26px);box-shadow:var(--shadow);}
+.module h2{margin:0 0 8px;font-size:19.5px;line-height:1.35;display:flex;align-items:center;gap:10px;}
+.h2-mark{flex:none;width:7px;height:19px;border-radius:3.5px;background:var(--accent);}
+.module .sub{margin:0;color:var(--ink-2);font-size:13.5px;}
+.module p{margin:10px 0;}
+strong{font-weight:650;color:var(--accent-strong);}
+.verdict strong,.insight strong{color:var(--accent-strong);}
+.rule{margin-top:16px;padding:12px 14px;background:var(--surface-2);border-left:3px solid var(--accent);
+  border-radius:8px;font-size:14.5px;line-height:1.65;}
+figure{margin:16px 0 0;}
+figcaption{font-size:12.8px;color:var(--ink-2);margin-top:8px;}
+svg{display:block;width:100%;height:auto;max-width:100%;}
+svg text{font-family:inherit;}
+.svgt{font-size:14px;fill:var(--ink-2);}
+.svgt.s{font-size:12.5px;}
+.svgt.eq{font-size:20px;font-weight:700;fill:var(--accent-strong);}
+.svgt.em{fill:var(--accent-strong);font-weight:600;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:999px;padding:7px 15px;font-size:14px;cursor:pointer;transition:border-color .15s,background .15s;}
+.chip:hover{border-color:var(--accent);}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600;}
+.side{margin-top:16px;}
+.side-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13.5px;color:var(--ink-2);}
+.calc{white-space:nowrap;}
+.calc.ok{color:var(--accent-strong);font-weight:600;}
+.calc.no{color:var(--bad);font-weight:600;}
+.track{position:relative;height:36px;margin-top:7px;background:var(--surface-2);border-radius:9px;}
+.rail{position:absolute;left:9px;right:9px;top:50%;height:2px;margin-top:-1px;background:var(--line);}
+.dot{position:absolute;top:50%;width:9px;height:9px;border-radius:50%;background:var(--pot);transform:translate(-50%,-50%);}
+.corner{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);
+  border:2.5px solid var(--bad);background:transparent;}
+.corner.ok{border-color:var(--accent);background:var(--accent);}
+.corner.miss{border-style:dashed;}
+.gap{position:absolute;top:50%;height:6px;transform:translateY(-50%);border-radius:3px;
+  background:repeating-linear-gradient(45deg,var(--bad) 0 2px,transparent 2px 6px);opacity:.5;}
+.legend{margin-top:14px;font-size:12.5px;color:var(--ink-2);}
+.verdict{margin-top:16px;padding:12px 14px;border-radius:10px;font-size:14.5px;line-height:1.6;}
+.verdict.good{background:var(--accent-soft);border-left:3px solid var(--accent);}
+.verdict.bad{background:var(--bad-soft);border-left:3px solid var(--bad);}
+.insight{margin-top:22px;background:var(--accent-soft);border-radius:14px;padding:15px 18px;
+  display:flex;gap:12px;align-items:flex-start;}
+.insight-tag{flex:none;font-size:12px;font-weight:700;color:var(--accent-strong);background:var(--surface);
+  border-radius:6px;padding:3px 9px;margin-top:3px;}
+.insight p{margin:0;font-size:14.5px;line-height:1.65;}
+@media (max-width:480px){
+  .side-head{flex-wrap:wrap;}
+  .svgt.eq{font-size:18px;}
+}
+</style>
+<style id="recording-agent-mobile-safety">
+/* Component-name-agnostic mobile safety net.
+   Structural guarantees are expressed against CSS Grid/Flex behaviour and
+   generic attribute hooks rather than a fixed class vocabulary, so generating
+   models may invent component names freely for any recording type. */
+*, *::before, *::after { box-sizing: border-box; }
+html { width: 100%; min-width: 0; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { width: 100%; min-width: 0; margin: 0; overflow-wrap: break-word; }
+main, header, footer, nav, section, article, aside, figure, div, ul, ol, li, dl, dd, details { min-width: 0; }
+img, picture, video, canvas, svg { display: block; max-width: 100%; height: auto; }
+pre, code, kbd, samp { max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
+h1, h2, h3, h4, h5, h6, p, li, td, th, dt, dd, blockquote, figcaption { overflow-wrap: anywhere; }
+input, textarea, select, button { max-width: 100%; font: inherit; }
+/* Any table gets a scroll container by intent or by generic hook. */
+.table-scroll, .table-wrap, .matrix-wrap, [data-table-scroll], [data-scroll-x] {
+  max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.table-scroll > table, .table-wrap > table, .matrix-wrap > table,
+[data-table-scroll] > table, [data-scroll-x] > table { margin: 0; }
+/* Numbered step rows: keep body copy out of the counter track. */
+.step-item, [data-step-item] { grid-template-columns: 32px minmax(0, 1fr) !important; }
+.step-item::before, [data-step-item]::before { grid-column: 1 !important; grid-row: 1 !important; }
+.step-item > :empty, [data-step-item] > :empty { display: none !important; }
+.step-item > *, [data-step-item] > * { grid-column: 2 !important; min-width: 0 !important; }
+.data-value, .metric-value, [data-value] { max-width: 100%; font-variant-numeric: tabular-nums; }
+/* A single surviving child of ANY grid spans the full row. Applied to every
+   element that declares a grid, so unknown component names are covered too. */
+[class*="grid"] > :only-child,
+[class*="board"] > :only-child,
+[class*="cluster"] > :only-child,
+[class*="row"] > :only-child,
+[class*="split"] > :only-child,
+[class*="cols"] > :only-child,
+[class*="columns"] > :only-child,
+[class*="layout"] > :only-child,
+[class*="panel"] > :only-child,
+[data-grid] > :only-child,
+[data-cols] > :only-child {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+@media (max-width: 600px) {
+  body { font-size: 14.5px !important; line-height: 1.62 !important; }
+  :where(body > main, body > .report-shell, body > .report, body > .container, body > [data-shell]) {
+    width: calc(100% - 40px) !important;
+    max-width: 100% !important;
+    margin-inline: auto !important;
+  }
+  h1 { font-size: 29px !important; line-height: 1.22 !important; letter-spacing: 0 !important; }
+  h2 { font-size: 22px !important; line-height: 1.3 !important; letter-spacing: 0 !important; }
+  h3 { font-size: 16px !important; line-height: 1.42 !important; letter-spacing: 0 !important; }
+  /* Generic collapse: every multi-column grid becomes single column unless it
+     explicitly opts into staying paired (data-keep-columns) or is a table. */
+  [class*="grid"]:not([data-keep-columns]),
+  [class*="board"]:not([data-keep-columns]),
+  [class*="split"]:not([data-keep-columns]),
+  [class*="cols"]:not([data-keep-columns]),
+  [class*="columns"]:not([data-keep-columns]),
+  [class*="layout"]:not([data-keep-columns]),
+  [data-grid]:not([data-keep-columns]) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  /* Compact numeric clusters may stay two-up, but a trailing odd card must
+     span both columns so no empty half-row is left on narrow screens. */
+  [data-keep-columns] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  [data-keep-columns] > :last-child:nth-child(odd) { grid-column: 1 / -1 !important; }
+  [data-span-all], [data-value-kind="formula"], [data-value-kind="range"] { grid-column: 1 / -1 !important; }
+  /* Horizontal flows become vertical. */
+  [class*="flow"], [class*="chain"], [class*="timeline"] { flex-direction: column !important; }
+  [class*="arrow"] { transform: rotate(90deg); min-height: 16px !important; }
+  table { font-size: 12.5px; }
+  th, td { padding: 9px 8px !important; }
+  nav { max-width: 100%; }
+  nav[data-scrollable] { overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; }
+  button, summary, [role="button"] { min-width: 44px; min-height: 44px; }
+  nav a { display: inline-flex; min-width: 44px; min-height: 44px; padding: 6px 10px !important; align-items: center; justify-content: center; font-size: 12.5px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+<style id="recording-agent-first-viewport-safety">
+body > :first-child { margin-top: 0 !important; }
+:where(body, body > main, [class*="shell"], [class*="container"]) > :where(
+  [class*="hero"], [class*="cover"], [data-hero]
+):first-child {
+  min-height: auto !important;
+  max-height: none !important;
+  margin-top: 0 !important;
+  padding-top: min(40px, 8vw) !important;
+}
+@media (max-width: 600px) {
+  :where(body, body > main, [class*="shell"], [class*="container"]) > :where(
+    [class*="hero"], [class*="cover"], [data-hero]
+  ):first-child { padding-top: 20px !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">数学讲解 · 植树问题</div>
+    <h1>花圃摆盆：间距、段数与盆数</h1>
+    <p class="lede">三角形花圃每隔 12 米摆一盆：角上为什么一定有盆、14 为什么是段数、靠墙为什么变成 15 盆。</p>
+  </header>
+
+  <div class="task">
+    <span class="task-tag">题目</span>
+    <p>三角形花圃三边长 72、60、36 米，每隔 12 米摆一盆花，三个角都要正好摆上——一共要多少盆？</p>
+  </div>
+
+  <section class="module">
+    <h2><span class="h2-mark"></span>为什么角上放一盆，和公因数有关？</h2>
+    <p>花盆要正好摆在三个角上，间距就得把三条边<strong>都分尽</strong>。</p>
+    <p>三边长 72、60、36 米，加起来正好是周长 168 米。间距 12 米把三条边都分尽：6 + 5 + 3，共 <strong>14 段</strong>。</p>
+    <figure data-visual-id="flowerbed-triangle" data-visual-title="三角形花圃每12米摆一盆" data-visual-type="示意图" data-visual-relation="间距12同时整除72、60、36，花盆正好铺满三边并落在三个角，共14段14盆" data-visual-source="正好能被七十二、六十、三十六整除，才能在花圃的顶端摆上花；12米放一盆，168÷12，14段">
+      <svg viewBox="0 0 360 312" role="img" aria-label="三角形花圃：三边72、60、36米，每隔12米一盆，三个角各有一盆，共14盆">
+        <path d="M20 260 L308 260 L100 140.3 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"></path>
+        <g fill="var(--pot)">
+          <circle cx="68" cy="260" r="4.2"></circle><circle cx="116" cy="260" r="4.2"></circle><circle cx="164" cy="260" r="4.2"></circle>
+          <circle cx="212" cy="260" r="4.2"></circle><circle cx="260" cy="260" r="4.2"></circle>
+          <circle cx="46.7" cy="220.1" r="4.2"></circle><circle cx="73.3" cy="180.2" r="4.2"></circle>
+          <circle cx="266.4" cy="236.1" r="4.2"></circle><circle cx="224.8" cy="212.1" r="4.2"></circle>
+          <circle cx="183.2" cy="188.2" r="4.2"></circle><circle cx="141.6" cy="164.2" r="4.2"></circle>
+        </g>
+        <g>
+          <circle cx="20" cy="260" r="9" fill="var(--pot)"></circle><circle cx="20" cy="260" r="3" fill="var(--surface)"></circle>
+          <circle cx="308" cy="260" r="9" fill="var(--pot)"></circle><circle cx="308" cy="260" r="3" fill="var(--surface)"></circle>
+          <circle cx="100" cy="140.3" r="9" fill="var(--pot)"></circle><circle cx="100" cy="140.3" r="3" fill="var(--surface)"></circle>
+        </g>
+        <path d="M20 272 L20 280 L68 280 L68 272" fill="none" stroke="var(--ink-2)" stroke-width="1.5"></path>
+        <text x="44" y="298" class="svgt s" text-anchor="middle">12 米</text>
+        <text x="170" y="298" class="svgt" text-anchor="middle">72 米</text>
+        <text x="232" y="194" class="svgt">60 米</text>
+        <text x="10" y="184" class="svgt">36 米</text>
+        <text x="150" y="122" class="svgt em">三个角都正好摆上盆</text>
+      </svg>
+      <figcaption>间距 12 米把每条边正好摆满，角上自然有盆。</figcaption>
+    </figure>
+    <div class="rule">能同时整除三个边长的数，就是它们的<strong>公因数</strong>——间距必须是 72、60、36 的公因数，花盆才落得到角上；只要一条边分不尽，最后一盆离角就凑不满一段。12 正好是它们的<strong>最大公因数</strong>。</div>
+  </section>
+
+  <section class="module">
+    <h2><span class="h2-mark"></span>换个间距，验一验</h2>
+    <p class="sub">点一个间距，看每条边能不能被正好分尽。</p>
+    <div class="chips" id="chips"><button class="chip" type="button" data-s="4" aria-pressed="false">4 米</button><button class="chip" type="button" data-s="6" aria-pressed="false">6 米</button><button class="chip" type="button" data-s="8" aria-pressed="false">8 米</button><button class="chip" type="button" data-s="9" aria-pressed="false">9 米</button><button class="chip" type="button" data-s="10" aria-pressed="false">10 米</button><button class="chip" type="button" data-s="12" aria-pressed="true">12 米</button></div>
+    <div id="sideRows"><div class="side"><div class="side-head"><span>72 米边</span><span class="calc ok">72 ÷ 12 = 6 段 ✓</span></div><div class="track"><div class="rail"></div><span class="dot" style="left: calc(0% + 9px);"></span><span class="dot" style="left: calc(16.6667% + 6px);"></span><span class="dot" style="left: calc(33.3333% + 3px);"></span><span class="dot" style="left: calc(50% + 0px);"></span><span class="dot" style="left: calc(66.6667% - 3px);"></span><span class="dot" style="left: calc(83.3333% - 6px);"></span><span class="corner ok" style="left: calc(100% - 9px);"></span></div></div><div class="side"><div class="side-head"><span>60 米边</span><span class="calc ok">60 ÷ 12 = 5 段 ✓</span></div><div class="track"><div class="rail"></div><span class="dot" style="left: calc(0% + 9px);"></span><span class="dot" style="left: calc(20% + 5.4px);"></span><span class="dot" style="left: calc(40% + 1.8px);"></span><span class="dot" style="left: calc(60% - 1.8px);"></span><span class="dot" style="left: calc(80% - 5.4px);"></span><span class="corner ok" style="left: calc(100% - 9px);"></span></div></div><div class="side"><div class="side-head"><span>36 米边</span><span class="calc ok">36 ÷ 12 = 3 段 ✓</span></div><div class="track"><div class="rail"></div><span class="dot" style="left: calc(0% + 9px);"></span><span class="dot" style="left: calc(33.3333% + 3px);"></span><span class="dot" style="left: calc(66.6667% - 3px);"></span><span class="corner ok" style="left: calc(100% - 9px);"></span></div></div></div>
+    <div class="legend">从每条边的一端起，按选定间距放盆；右端的圈是角点——实心 = 正好摆上，虚线 = 差一点、摆不上。</div>
+    <div id="verdict" class="verdict good"><strong>12 米</strong>能同时整除 72、60、36——是公因数，还是最大的那个。三个角都能正好摆上盆。</div>
+  </section>
+
+  <section class="module">
+    <h2><span class="h2-mark"></span>拉直之后：14 是段数，不是盆数</h2>
+    <p>把三条边拉成一条 168 米的直线，每 12 米放一盆、从头到尾：<strong>168 ÷ 12 = 14</strong>。这个 14 是 <strong>14 段</strong>，不是 14 盆。</p>
+    <figure data-visual-id="loop-to-line" data-visual-title="三边拉直：168÷12=14段" data-visual-type="示意图" data-visual-relation="封闭路线首尾相连，每段一边有盆一边没有，段数=盆数=14" data-visual-source="把三条边全部拉长拉成一根直线，12米放一盆…168÷12…14其实不是14盆，是14段…段数就等于花盆数">
+      <svg viewBox="0 0 680 348" role="img" aria-label="三角形三条边拉直成168米直线，每12米一段共14段，终点与起点是同一盆">
+        <path d="M340 30 L252 148 L428 148 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"></path>
+        <g fill="var(--pot)">
+          <circle cx="308" cy="148" r="3.5"></circle><circle cx="372" cy="148" r="3.5"></circle>
+          <circle cx="296" cy="89" r="3.5"></circle><circle cx="384" cy="89" r="3.5"></circle>
+        </g>
+        <g>
+          <circle cx="340" cy="30" r="7.5" fill="var(--pot)"></circle><circle cx="340" cy="30" r="2.4" fill="var(--surface)"></circle>
+          <circle cx="252" cy="148" r="7.5" fill="var(--pot)"></circle><circle cx="252" cy="148" r="2.4" fill="var(--surface)"></circle>
+          <circle cx="428" cy="148" r="7.5" fill="var(--pot)"></circle><circle cx="428" cy="148" r="2.4" fill="var(--surface)"></circle>
+        </g>
+        <text x="452" y="94" class="svgt">三角形 · 首尾相连</text>
+        <line x1="340" y1="164" x2="340" y2="204" stroke="var(--ink-2)" stroke-width="2"></line>
+        <polygon points="334,202 346,202 340,214" fill="var(--ink-2)"></polygon>
+        <text x="358" y="192" class="svgt">三条边拉成一条直线</text>
+        <text x="340" y="228" class="svgt eq" text-anchor="middle">168 ÷ 12 = 14 段</text>
+        <path d="M40 244 L40 236 L82.9 236 L82.9 244" fill="none" stroke="var(--ink-2)" stroke-width="1.5"></path>
+        <text x="61" y="230" class="svgt s" text-anchor="middle">每段 12 米</text>
+        <line x1="40" y1="252" x2="640" y2="252" stroke="var(--line)" stroke-width="3"></line>
+        <g>
+          <g fill="var(--pot)">
+            <circle cx="40" cy="252" r="7"></circle><circle cx="82.9" cy="252" r="7"></circle><circle cx="125.7" cy="252" r="7"></circle>
+            <circle cx="168.6" cy="252" r="7"></circle><circle cx="211.4" cy="252" r="7"></circle><circle cx="254.3" cy="252" r="7"></circle>
+            <circle cx="297.1" cy="252" r="7"></circle><circle cx="340" cy="252" r="7"></circle><circle cx="382.9" cy="252" r="7"></circle>
+            <circle cx="425.7" cy="252" r="7"></circle><circle cx="468.6" cy="252" r="7"></circle><circle cx="511.4" cy="252" r="7"></circle>
+            <circle cx="554.3" cy="252" r="7"></circle><circle cx="597.1" cy="252" r="7"></circle>
+          </g>
+          <g fill="var(--surface)">
+            <circle cx="40" cy="252" r="2.3"></circle><circle cx="82.9" cy="252" r="2.3"></circle><circle cx="125.7" cy="252" r="2.3"></circle>
+            <circle cx="168.6" cy="252" r="2.3"></circle><circle cx="211.4" cy="252" r="2.3"></circle><circle cx="254.3" cy="252" r="2.3"></circle>
+            <circle cx="297.1" cy="252" r="2.3"></circle><circle cx="340" cy="252" r="2.3"></circle><circle cx="382.9" cy="252" r="2.3"></circle>
+            <circle cx="425.7" cy="252" r="2.3"></circle><circle cx="468.6" cy="252" r="2.3"></circle><circle cx="511.4" cy="252" r="2.3"></circle>
+            <circle cx="554.3" cy="252" r="2.3"></circle><circle cx="597.1" cy="252" r="2.3"></circle>
+          </g>
+          <circle cx="640" cy="252" r="7" fill="none" stroke="var(--ink-2)" stroke-width="2" stroke-dasharray="3 3"></circle>
+        </g>
+        <path d="M640 266 C 640 314, 40 314, 40 268" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 5"></path>
+        <polygon points="34.8,271 45.2,271 40,260" fill="var(--accent)"></polygon>
+        <text x="340" y="338" class="svgt em" text-anchor="middle">终点 = 起点（首尾相连，不重复摆）</text>
+      </svg>
+    </figure>
+    <p>三角形首尾相连，属于“一边种、一边不种”：每段只有起点有盆，段尾那盆就是下一段的起点。所以<strong>段数 = 花盆数</strong>，这个花圃要 14 盆。</p>
+  </section>
+
+  <section class="module">
+    <h2><span class="h2-mark"></span>变式：一面靠墙，要多摆一盆</h2>
+    <p>改成一面靠墙的四边形花圃，从墙种到墙：路线两端都贴着墙，两端都得放盆，成了“两边都种”。</p>
+    <figure data-visual-id="wall-quadrilateral" data-visual-title="一面靠墙：两端都放盆" data-visual-type="示意图" data-visual-relation="从墙种到墙时两端都放盆，盆数=段数+1，14段要15盆" data-visual-source="如果是个四边形花圃，只不过一面靠墙，它从墙种到墙…那是两边都种了…就要变成15盆">
+      <svg viewBox="0 0 360 312" role="img" aria-label="四边形花圃一面靠墙：花盆沿另外三边从墙种到墙，两端都放盆，同样14段要15盆">
+        <defs>
+          <pattern id="wallHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="7" height="7" fill="var(--surface-2)"></rect>
+            <line x1="0" y1="0" x2="0" y2="7" stroke="var(--ink-2)" stroke-width="2.2"></line>
+          </pattern>
+        </defs>
+        <text x="180" y="30" text-anchor="middle" class="svgt">墙（这一面不摆盆）</text>
+        <rect x="34" y="42" width="292" height="20" rx="4" fill="url(#wallHatch)" stroke="var(--ink-2)" stroke-width="1.5"></rect>
+        <path d="M70 70 L70 252 L290 252 L290 70 Z" fill="var(--accent-soft)"></path>
+        <path d="M70 70 L70 252 L290 252 L290 70" fill="none" stroke="var(--accent)" stroke-width="2.5"></path>
+        <g fill="var(--pot)">
+          <circle cx="70" cy="115.5" r="4.2"></circle><circle cx="70" cy="161" r="4.2"></circle><circle cx="70" cy="206.5" r="4.2"></circle>
+          <circle cx="106.7" cy="252" r="4.2"></circle><circle cx="143.3" cy="252" r="4.2"></circle><circle cx="180" cy="252" r="4.2"></circle>
+          <circle cx="216.7" cy="252" r="4.2"></circle><circle cx="253.3" cy="252" r="4.2"></circle>
+          <circle cx="290" cy="115.5" r="4.2"></circle><circle cx="290" cy="161" r="4.2"></circle><circle cx="290" cy="206.5" r="4.2"></circle>
+        </g>
+        <g>
+          <circle cx="70" cy="252" r="8" fill="var(--pot)"></circle><circle cx="70" cy="252" r="3" fill="var(--surface)"></circle>
+          <circle cx="290" cy="252" r="8" fill="var(--pot)"></circle><circle cx="290" cy="252" r="3" fill="var(--surface)"></circle>
+          <circle cx="70" cy="70" r="8" fill="var(--pot)"></circle><circle cx="70" cy="70" r="3" fill="var(--surface)"></circle>
+          <circle cx="290" cy="70" r="8" fill="var(--pot)"></circle><circle cx="290" cy="70" r="3" fill="var(--surface)"></circle>
+          <circle cx="70" cy="70" r="11.5" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"></circle>
+          <circle cx="290" cy="70" r="11.5" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="3 3"></circle>
+        </g>
+        <text x="180" y="152" text-anchor="middle" class="svgt em">两端都放盆：盆数 = 段数 + 1</text>
+        <text x="180" y="292" text-anchor="middle" class="svgt">同样 14 段：14 盆不够，要 15 盆</text>
+      </svg>
+    </figure>
+    <p>同样 14 段时，盆数 = 段数 + 1，要 <strong>15 盆</strong>——14 盆不够。</p>
+  </section>
+
+  <div class="insight">
+    <span class="insight-tag">关键一条</span>
+    <p>先用公因数当间距分尽每条边，得到段数 = 周长 ÷ 间距；盆数再看路线两端：<strong>封闭相连不加，两端都放盆要 +1</strong>。</p>
+  </div>
+
+</div>
+
+<template id="share-cover"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#f2f6f1"></rect>
+  <circle cx="256" cy="252" r="168" fill="#e0efe4"></circle>
+  <path d="M150 344 L362 344 L232 158 Z" fill="#f7fbf8" stroke="#2f7d4f" stroke-width="10" stroke-linejoin="round"></path>
+  <g fill="#cf7a4e">
+    <circle cx="203" cy="344" r="9"></circle><circle cx="256" cy="344" r="9"></circle><circle cx="309" cy="344" r="9"></circle>
+    <circle cx="177" cy="282" r="9"></circle><circle cx="205" cy="220" r="9"></circle>
+    <circle cx="319" cy="282" r="9"></circle><circle cx="275" cy="220" r="9"></circle>
+  </g>
+  <g>
+    <circle cx="150" cy="344" r="22" fill="#c05f38"></circle><circle cx="150" cy="344" r="8" fill="#f2f6f1"></circle>
+    <circle cx="362" cy="344" r="22" fill="#c05f38"></circle><circle cx="362" cy="344" r="8" fill="#f2f6f1"></circle>
+    <circle cx="232" cy="158" r="22" fill="#c05f38"></circle><circle cx="232" cy="158" r="8" fill="#f2f6f1"></circle>
+  </g>
+</svg></template>
+
+<script>
+(function(){
+  var SIDES=[{n:'72 米边',l:72},{n:'60 米边',l:60},{n:'36 米边',l:36}];
+  var SP=[4,6,8,9,10,12];
+  var chips=document.getElementById('chips');
+  var rows=document.getElementById('sideRows');
+  var verdict=document.getElementById('verdict');
+  var cur=12;
+  function pos(f){return 'calc(9px + (100% - 18px)*'+f+')';}
+  function el(tag,cls){var e=document.createElement(tag);if(cls)e.className=cls;return e;}
+  SP.forEach(function(s){
+    var b=el('button','chip');
+    b.type='button';b.textContent=s+' 米';b.dataset.s=String(s);
+    b.addEventListener('click',function(){cur=s;render();});
+    chips.appendChild(b);
+  });
+  function render(){
+    Array.prototype.forEach.call(chips.children,function(c){
+      c.setAttribute('aria-pressed',Number(c.dataset.s)===cur?'true':'false');
+    });
+    rows.innerHTML='';
+    var bad=[];
+    SIDES.forEach(function(sd){
+      var ok=sd.l%cur===0,q=Math.floor(sd.l/cur),r=sd.l%cur;
+      if(!ok)bad.push(String(sd.l));
+      var row=el('div','side');
+      var head=el('div','side-head');
+      var h1=el('span');h1.textContent=sd.n;
+      var h2=el('span','calc '+(ok?'ok':'no'));
+      h2.textContent=sd.l+' ÷ '+cur+' = '+q+' 段'+(ok?' ✓':'，余 '+r+' ✗');
+      head.appendChild(h1);head.appendChild(h2);
+      var track=el('div','track');
+      track.appendChild(el('div','rail'));
+      if(!ok){
+        var gap=el('div','gap');
+        var wf=r/sd.l,st=(sd.l-r)/sd.l;
+        gap.style.left=pos(st);
+        gap.style.width='calc((100% - 18px)*'+wf+')';
+        track.appendChild(gap);
+      }
+      for(var p=0;p<sd.l;p+=cur){
+        var d=el('span','dot');
+        d.style.left=pos(p/sd.l);
+        track.appendChild(d);
+      }
+      var c=el('span','corner '+(ok?'ok':'miss'));
+      c.style.left=pos(1);
+      track.appendChild(c);
+      row.appendChild(head);row.appendChild(track);
+      rows.appendChild(row);
+    });
+    verdict.className='verdict '+(bad.length?'bad':'good');
+    if(!bad.length){
+      verdict.innerHTML=cur===12
+        ?'<strong>12 米</strong>能同时整除 72、60、36——是公因数，还是最大的那个。三个角都能正好摆上盆。'
+        :'<strong>'+cur+' 米</strong>也能同时整除 72、60、36——它也是公因数，三个角都摆得上，只是盆更密。';
+    }else{
+      verdict.innerHTML='<strong>'+cur+' 米</strong>不能整除 '+bad.join('、')+'——这几条边的最后一盆离角凑不满一段，角上摆不上盆。';
+    }
+  }
+  render();
+})();
+</script>
+
+</body></html>
