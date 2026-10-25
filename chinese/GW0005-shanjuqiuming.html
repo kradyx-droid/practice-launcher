@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>GW0005 · 山居秋暝｜古诗文回收卡</title>
+<style>
+  :root { --paper:#fff;--bg:#f7f9fa;--text:#263440;--muted:#758390;--line:#e5e9ed;--covered:#e2e9ed;--shown:#f1f4f6;--weak:#fae9dd;--weak-text:#af613e;--focus:#6b91aa; }
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+  button,input{font:inherit} button{cursor:pointer}
+  main{width:min(1040px,100%);margin:0 auto}
+  .sheet{height:calc(100vh - 40px);height:calc(100dvh - 40px);min-height:490px;border:1px solid var(--line);border-radius:18px;background:var(--paper);display:flex;flex-direction:column;padding:24px 30px 20px;box-shadow:0 9px 40px rgba(35,49,64,.035)}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-shrink:0}
+  .overline{margin:0 0 5px;color:var(--muted);font-size:11px;letter-spacing:.15em;font-weight:650}
+  h1{margin:0;font-size:27px;line-height:1.45;font-weight:700;letter-spacing:.07em}
+  .head-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+  .reset{border:1px solid var(--line);background:white;color:var(--muted);font-size:12px;padding:8px 11px;border-radius:8px;min-height:36px;white-space:nowrap}
+  .levels{display:flex;align-items:center;gap:3px;padding:3px;border:1px solid var(--line);border-radius:9px}
+  .level{border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:650;min-width:40px;min-height:29px;padding:4px 9px;border-radius:6px}
+  .level[aria-pressed="true"]{background:var(--covered);color:var(--text)}
+  .meta{flex-shrink:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:26px;margin:15px 0 2px;font-size:15px;line-height:2}
+  .meta-label{color:var(--muted);margin-right:6px}
+  .reading-area{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:5px}
+  .poem{padding:25px 8px 26px;border-bottom:1px solid var(--line)}
+  .verse{display:flex;justify-content:center;align-items:baseline;white-space:nowrap;font-family:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;font-size:clamp(24px,3.35vw,32px);line-height:2.14;letter-spacing:.02em}
+  .char{display:inline-block;width:1.05em;flex:0 0 1.05em;text-align:center;font-weight:normal}
+  .mask{font:inherit;line-height:inherit;letter-spacing:inherit;text-align:left;background:none;border:0;color:inherit;border-radius:4px;vertical-align:baseline;padding:0;transition:background-color .12s}
+  .mask .ink{background:var(--covered);color:transparent;border-radius:4px;padding:3px 6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .mask[data-state="1"] .ink{background:var(--shown);color:var(--text)}
+  .mask[data-state="2"] .ink{background:var(--weak);color:var(--weak-text);font-weight:650}
+  .verse .mask{display:inline-flex;position:relative;flex-shrink:0;isolation:isolate;line-height:inherit}
+  .verse .mask .ink{display:inline-flex;position:relative;z-index:1;padding:0;background:transparent!important;border-radius:0;font-weight:normal}
+  .verse .mask[data-state="0"] .ink{color:transparent}
+  .verse .mask[data-state="1"] .ink{color:var(--text)}
+  .verse .mask[data-state="2"] .ink{color:var(--weak-text);font-weight:650}
+  .verse .mask::after{content:"";position:absolute;inset:9px 1px;background:var(--covered);border-radius:4px;z-index:0;pointer-events:none}
+  .verse .mask[data-state="1"]::after{background:var(--shown)}
+  .verse .mask[data-state="2"]::after{background:var(--weak)}
+  .section{padding:20px 0 4px}
+  .section+.section{margin-top:13px;border-top:1px solid var(--line)}
+  .section h2{font-size:14px;color:#697987;font-weight:700;margin:0 0 13px;letter-spacing:.015em}
+  .notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 30px}
+  .note{display:flex;gap:12px;min-width:0;align-items:baseline;font-size:15px;line-height:2.15}
+  .note-title{min-width:52px;flex-shrink:0;font-weight:650;color:#394b59}
+  .note .mask{max-width:100%;white-space:normal}
+  .note .ink,.meaning .ink{line-height:2.2;overflow-wrap:anywhere}
+  .meanings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 18px}
+  .meaning{min-width:0;display:flex;align-items:baseline;gap:10px;font-size:15px;line-height:2.15}
+  .meaning-label{font-size:13px;flex-shrink:0;color:var(--muted);padding-top:1px}
+  .meaning .mask{max-width:100%;white-space:normal}
+  .source-note{font-size:12px;color:#9ba6ae;line-height:1.8;margin:17px 0 5px}
+  .footer{flex-shrink:0;border-top:1px solid var(--line);padding-top:15px;background:var(--paper)}
+  .footer-heading{display:flex;gap:14px;justify-content:space-between;align-items:center;margin-bottom:8px;min-height:18px}
+  .footer-label{font-size:13px;color:var(--muted);font-weight:650}
+  .status{color:var(--muted);font-size:12px;line-height:1.4;text-align:right;margin:0}
+  .footer-actions{display:flex;gap:10px;align-items:stretch}
+  .comment{flex:1;min-width:0;border:1px solid #dce2e6;background:#fff;border-radius:9px;padding:11px 13px;font-size:15px;line-height:1.5;min-height:47px;color:var(--text)}
+  .comment::placeholder{color:#9da8b0}
+  .copy{border:1px solid #1c2832;background:#1c2832;color:#fff;padding:11px 20px;border-radius:9px;min-height:47px;font-size:14px;font-weight:650;flex-shrink:0}
+  .copy:disabled{opacity:.65;cursor:wait}
+  :is(.mask,.level,.reset,.copy,.comment):focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+  @media (hover:hover){.reset:hover{background:#f5f7f8}.level:not([aria-pressed="true"]):hover{background:#f3f5f7}.copy:hover{background:#2f3d47}}
+  @media(max-width:700px){body{padding:12px}.sheet{height:calc(100dvh - 24px);min-height:420px;padding:18px 18px 15px;border-radius:13px}.header{gap:10px;flex-wrap:wrap}h1{font-size:23px}.head-actions{margin-left:auto}.verse{font-size:clamp(19px,4.9vw,27px)}.poem{padding:22px 0}.notes,.meanings{grid-template-columns:1fr;gap:8px}.note{gap:10px}.footer-actions{gap:8px}.copy{padding:10px 12px}}
+  @media(max-width:390px){.meta{gap:14px}.verse{font-size:clamp(17px,4.75vw,20px)}.footer-actions{flex-wrap:wrap}.copy{width:100%}}
+  @media print{body{padding:0;background:white}.sheet{height:auto;min-height:0;border:0;border-radius:0;padding:10px;box-shadow:none}.reading-area{overflow:visible}.footer,.head-actions{display:none}}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+  <article class="sheet" id="poem-card" aria-label="GW0005 山居秋暝回收卡">
+    <header class="header">
+      <div><p class="overline">古诗文 · 固定回收卡 · GW0005</p><h1>山居秋暝</h1></div>
+      <div class="head-actions">
+        <button id="reset-all" class="reset" type="button" title="清除本卡的操作记录">↺ 重置</button>
+        <div class="levels" role="group" aria-label="原文挖空强度">
+          <button type="button" class="level" data-level="low" aria-pressed="false">低</button>
+          <button type="button" class="level" data-level="mid" aria-pressed="false">中</button>
+          <button type="button" class="level" data-level="high" aria-pressed="true">高</button>
+        </div>
+      </div>
+    </header>
+    <div class="meta">
+      <span><span class="meta-label">朝代：</span><button class="mask" type="button" data-item="dynasty" data-state="0" aria-label="点击揭晓朝代"><span class="ink">唐</span></button></span>
+      <span><span class="meta-label">作者：</span><button class="mask" type="button" data-item="author" data-state="0" aria-label="点击揭晓作者"><span class="ink">王维</span></button></span>
+    </div>
+    <div class="reading-area" id="reading-area">
+      <section id="verses" class="poem" aria-label="山居秋暝原文"></section>
+      <section class="section" aria-labelledby="notes-label">
+        <h2 id="notes-label">重点注释</h2><div id="notes" class="notes"></div>
+      </section>
+      <section class="section" aria-labelledby="meaning-label">
+        <h2 id="meaning-label">诗意</h2><div id="meanings" class="meanings"></div>
+      </section>
+      <p class="source-note">原文及五项注释依据家长提供的教材照片；诗意依据该篇已核对教研稿。所有揭晓与标弱均由实际点击记录。</p>
+    </div>
+    <footer class="footer">
+      <div class="footer-heading"><label class="footer-label" for="parent-comment">补充说明</label><p class="status" id="copy-status" role="status" aria-live="polite"></p></div>
+      <div class="footer-actions"><input id="parent-comment" class="comment" type="text" autocomplete="off" placeholder="例如：第3句还不熟；诗意今天只看了没口答"><button id="copy-result" class="copy" type="button">复制结果</button></div>
+    </footer>
+  </article>
+</main>
+<script>
+(()=>{
+'use strict';
+const DATA={
+  workId:'GW0005',title:'山居秋暝',dynasty:'唐',author:'王维',
+  lines:[
+    '空山新雨后，天气晚来秋。',
+    '明月松间照，清泉石上流。',
+    '竹喧归浣女，莲动下渔舟。',
+    '随意春芳歇，王孙自可留。'
+  ],
+  masks:{
+    low:[[[2,4],[8,11]],[[2,4],[8,10]],[[3,5],[9,11]],[[2,4],[8,10]]],
+    mid:[[[2,5],[8,11]],[[2,5],[8,11]],[[2,5],[8,11]],[[2,5],[8,11]]],
+    high:[[[0,5],[6,11]],[[0,5],[6,11]],[[0,5],[6,11]],[[0,5],[6,11]]]
+  },
+  notes:[
+    {id:'n01',term:'暝',answer:'míng；日落时分，天色将晚。'},
+    {id:'n02',term:'浣女',answer:'“浣”读 huàn；洗衣物的女子。'},
+    {id:'n03',term:'随意',answer:'任凭。'},
+    {id:'n04',term:'歇',answer:'尽。'},
+    {id:'n05',term:'王孙',answer:'贵族子弟。这里指诗人自己。'}
+  ],
+  meanings:[
+    {id:'m01',label:'第1联',answer:'空旷的山间刚下过一场雨，傍晚的天气透着秋天的凉意。'},
+    {id:'m02',label:'第2联',answer:'明亮的月光照在松林之间，清澈的泉水在山石上流淌。'},
+    {id:'m03',label:'第3联',answer:'竹林中传来喧闹的说笑声，洗衣女子回来了；莲叶摇动，有渔船顺水行过。'},
+    {id:'m04',label:'第4联',answer:'任凭春天花草的芳华消歇，诗人自己仍然可以留在这里。'}
+  ]
+};
+const card=document.getElementById('poem-card');
+const verses=card.querySelector('#verses'),notesRoot=card.querySelector('#notes'),meaningsRoot=card.querySelector('#meanings');
+const comment=card.querySelector('#parent-comment'),status=card.querySelector('#copy-status'),copyBtn=card.querySelector('#copy-result');
+const storeKey='GW0005-shanjuqiuming-recall-v1';
+let level='high', states={};
+function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
+function currentState(id){return [0,1,2].includes(Number(states[id]))?Number(states[id]):0;}
+function masked(text,id,label,verse=false){const b=el('button','mask');b.type='button';b.dataset.item=id;b.dataset.state=String(currentState(id));b.setAttribute('aria-label',`${label}；点击切换揭晓与不熟练标记`);
+  const ink=el('span','ink');if(verse){Array.from(text).forEach(c=>ink.appendChild(el('span','char',c)));}else{ink.textContent=text;}b.appendChild(ink);return b;}
+function validMasks(){for(const [mode,rows] of Object.entries(DATA.masks)){if(rows.length!==DATA.lines.length)return false;for(let i=0;i<rows.length;i++){const chars=Array.from(DATA.lines[i]);let last=-1;for(const [a,b] of rows[i]){if(a<0||b>chars.length||a>=b||a<last||chars.slice(a,b).some(c=>/[，。？！、]/.test(c)))return false;last=b;}}}return true;}
+if(!validMasks()){verses.textContent='原文数据校验失败，请检查遮罩索引。';return;}
+function drawVerses(){verses.replaceChildren();DATA.lines.forEach((line,i)=>{const chars=Array.from(line),row=el('div','verse');let pos=0;DATA.masks[level][i].forEach(([a,b],j)=>{if(a>pos)chars.slice(pos,a).forEach(c=>row.appendChild(el('span','char',c)));const id=`verse-${i+1}-${level}-${j+1}`;row.appendChild(masked(chars.slice(a,b).join(''),id,`第${i+1}行第${j+1}处`,true));pos=b;});if(pos<chars.length)chars.slice(pos).forEach(c=>row.appendChild(el('span','char',c)));verses.appendChild(row);});card.querySelectorAll('.level').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.level===level)));}
+function drawNotesAndMeanings(){notesRoot.replaceChildren();meaningsRoot.replaceChildren();DATA.notes.forEach(item=>{const row=el('div','note');row.appendChild(el('strong','note-title',item.term));row.appendChild(masked(item.answer,item.id,`注释·${item.term}`));notesRoot.appendChild(row);});DATA.meanings.forEach(item=>{const row=el('div','meaning');row.appendChild(el('span','meaning-label',item.label));row.appendChild(masked(item.answer,item.id,`诗意·${item.label}`));meaningsRoot.appendChild(row);});}
+function save(){try{localStorage.setItem(storeKey,JSON.stringify({level,states,comment:comment.value,editedAt:new Date().toISOString()}));}catch(e){/* may be disabled for local files */}}
+function restore(){try{const x=JSON.parse(localStorage.getItem(storeKey)||'null');if(x&&DATA.masks[x.level])level=x.level;if(x&&x.states&&typeof x.states==='object'){states=Object.fromEntries(Object.entries(x.states).filter(([k,v])=>[0,1,2].includes(Number(v))).map(([k,v])=>[k,Number(v)]));}if(x&&typeof x.comment==='string')comment.value=x.comment;}catch(e){}}
+function reset(){if(!window.confirm('确认清空这张《山居秋暝》回收卡的全部揭晓、弱项标记和补充说明吗？\n清空之前请先复制要保存的结果。'))return;level='high';states={};comment.value='';status.textContent='';drawVerses();drawNotesAndMeanings();save();}
+function modeSummary(i,mode){const entries=DATA.masks[mode][i].map(([a,b],j)=>({text:Array.from(DATA.lines[i]).slice(a,b).join(''),state:currentState(`verse-${i+1}-${mode}-${j+1}`)}));const touched=entries.filter(x=>x.state>0);if(touched.length===0)return {text:'未揭晓',touched:false};let t=touched.length===entries.length?'已揭晓':`部分揭晓（${touched.length}/${entries.length}处）`;const weak=[...new Set(entries.filter(x=>x.state===2).map(x=>x.text))];if(weak.length)t+=`；不熟练：${weak.join('、')}`;return {text:t,touched:true};}
+function nowString(){const d=new Date(),p=x=>String(x).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;}
+function makeResult(){const names={low:'低',mid:'中',high:'高'};const a=[`古诗文回收卡｜GW0005｜山居秋暝`,`记录时间：${nowString()}`,`原文挖空档：${names[level]}`,'','【原文背诵】'];DATA.lines.forEach((line,i)=>{const cur=modeSummary(i,level);const extras=[];for(const mode of ['high','mid','low']){if(mode===level)continue;const state=modeSummary(i,mode);if(state.touched)extras.push(`${names[mode]}档${state.text}`);}a.push(`${line}（${[cur.text,...extras].join('；')}）`);});
+  const appendSection=(header,items,label)=>{const seen=items.filter(item=>currentState(item.id)>0);if(!seen.length)return; a.push('',`【${header}】`);for(const item of seen){a.push(`${label(item)}（${currentState(item.id)===2?'不熟练':'已揭晓'}）`);}};
+  appendSection('重点注释',DATA.notes,x=>x.term);appendSection('诗意',DATA.meanings,x=>x.label);
+  const basic=[['dynasty','朝代'],['author','作者']].filter(([k])=>currentState(k)>0);if(basic.length){a.push('','【基本信息】');basic.forEach(([k,label])=>a.push(`${label}（${currentState(k)===2?'不熟练':'已揭晓'}）`));}
+  if(comment.value.trim())a.push('',`家长补充说明：${comment.value.trim()}`);
+  return a.join('\n');
+}
+async function copyText(s){if(navigator.clipboard&&navigator.clipboard.writeText){try{await navigator.clipboard.writeText(s);return true;}catch(e){}}
+const t=el('textarea');t.value=s;t.style.cssText='position:fixed;left:-9999px;opacity:0';document.body.appendChild(t);t.select();let ok=false;try{ok=document.execCommand('copy');}catch(e){}t.remove();return ok;}
+card.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!card.contains(b))return;
+  if(b.id==='reset-all'){reset();return;}
+  if(b.dataset.level){level=b.dataset.level;drawVerses();save();status.textContent='';return;}
+  if(b.classList.contains('mask')){const k=b.dataset.item,n=currentState(k);states[k]=n===0?1:n===1?2:1;b.dataset.state=String(states[k]);status.textContent='';save();}
+});
+comment.addEventListener('input',save);
+copyBtn.addEventListener('click',async()=>{copyBtn.disabled=true;const ok=await copyText(makeResult());copyBtn.disabled=false;status.textContent=ok?'✓ 已复制，可粘贴给回收小助手':'复制失败，请检查浏览器剪贴板权限';});
+restore();drawVerses();drawNotesAndMeanings();card.querySelectorAll('.meta .mask').forEach(b=>b.dataset.state=String(currentState(b.dataset.item)));
+})();
+</script>
+</body>
+</html>
